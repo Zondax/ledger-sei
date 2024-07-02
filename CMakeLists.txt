@@ -144,6 +144,7 @@ file(GLOB_RECURSE LIB_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm/parser_impl_evm.c
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm/evm_utils.c
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm/parser_evm.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/app/src/crypto_helper.c
 )
 
 add_library(app_lib STATIC ${LIB_SRC})
@@ -154,6 +155,7 @@ target_include_directories(app_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/lib
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/common
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/picohash/
 )
 
 # #############################################################

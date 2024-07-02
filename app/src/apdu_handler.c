@@ -24,9 +24,11 @@
 #include "addr.h"
 #include "apdu_handler_evm.h"
 #include "app_main.h"
+#include "app_mode.h"
 #include "coin.h"
 #include "coin_evm.h"
 #include "crypto.h"
+#include "crypto_helper.h"
 #include "tx.h"
 #include "view.h"
 #include "view_internal.h"
@@ -43,11 +45,28 @@ void extractHDPath(uint32_t rx, uint32_t offset) {
 
     memcpy(hdPath, G_io_apdu_buffer + offset, sizeof(uint32_t) * HDPATH_LEN_DEFAULT);
 
-    const bool mainnet = hdPath[0] == HDPATH_0_DEFAULT && hdPath[1] == HDPATH_1_DEFAULT;
-
-    if (!mainnet) {
+    if (hdPath[0] != HDPATH_ETH_0_DEFAULT || (hdPath[1] != HDPATH_ETH_1_DEFAULT)) {
         THROW(APDU_CODE_DATA_INVALID);
     }
+    hdPath_len = HDPATH_LEN_DEFAULT;
+}
+
+uint8_t extractHRP(uint32_t rx, uint32_t offset) {
+    if (rx < offset + 1) {
+        THROW(APDU_CODE_DATA_INVALID);
+    }
+    MEMZERO(bech32_hrp, MAX_BECH32_HRP_LEN);
+
+    bech32_hrp_len = G_io_apdu_buffer[offset];
+
+    if (bech32_hrp_len == 0 || bech32_hrp_len > MAX_BECH32_HRP_LEN) {
+        THROW(APDU_CODE_DATA_INVALID);
+    }
+
+    memcpy(bech32_hrp, G_io_apdu_buffer + offset + 1, bech32_hrp_len);
+    bech32_hrp[bech32_hrp_len] = 0;  // zero terminate
+
+    return bech32_hrp_len;
 }
 
 __Z_INLINE void handle_getversion(__Z_UNUSED volatile uint32_t *flags, volatile uint32_t *tx) {
@@ -77,6 +96,29 @@ __Z_INLINE void handle_getversion(__Z_UNUSED volatile uint32_t *flags, volatile 
     THROW(APDU_CODE_OK);
 }
 
+__Z_INLINE void handleGetAddr(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
+    zemu_log("handleGetAddr\n");
+    uint8_t len = extractHRP(rx, OFFSET_DATA);
+    extractHDPath(rx, OFFSET_DATA + 1 + len);
+    uint8_t requireConfirmation = G_io_apdu_buffer[OFFSET_P1];
+
+    zxerr_t zxerr = app_fill_address();
+    if (zxerr != zxerr_ok) {
+        *tx = 0;
+        THROW(APDU_CODE_DATA_INVALID);
+    }
+
+    if (requireConfirmation) {
+        view_review_init(addr_getItem, addr_getNumItems, app_reply_address);
+        view_review_show(REVIEW_ADDRESS);
+        *flags |= IO_ASYNCH_REPLY;
+        return;
+    }
+
+    *tx = action_addrResponseLen;
+    THROW(APDU_CODE_OK);
+}
+
 void handleApdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
     volatile uint16_t sw = 0;
 
@@ -92,31 +134,31 @@ void handleApdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
                 THROW(APDU_CODE_WRONG_LENGTH);
             }
 
-            switch (G_io_apdu_buffer[OFFSET_INS]) {
-                case INS_GET_VERSION: {
-                    handle_getversion(flags, tx);
-                    break;
-                }
-
-                case INS_GET_ADDR_ETH:
-                    CHECK_PIN_VALIDATED()
-                    if (cla != CLA_ETH) {
-                        THROW(APDU_CODE_COMMAND_NOT_ALLOWED);
+            const uint8_t instruction = G_io_apdu_buffer[OFFSET_INS];
+            if (instruction == INS_GET_ADDR_ETH && cla == CLA_ETH) {
+                handleGetAddrEth(flags, tx, rx);
+            } else {
+                switch (instruction) {
+                    case INS_GET_VERSION: {
+                        handle_getversion(flags, tx);
+                        break;
                     }
-                    handleGetAddrEth(flags, tx, rx);
-                    break;
-
-                case INS_SIGN_ETH: {
-                    CHECK_PIN_VALIDATED()
-                    if (cla != CLA_ETH) {
-                        THROW(APDU_CODE_COMMAND_NOT_ALLOWED);
+                    case INS_GET_ADDR:
+                        CHECK_PIN_VALIDATED()
+                        handleGetAddr(flags, tx, rx);
+                        break;
+                    case INS_SIGN_ETH: {
+                        CHECK_PIN_VALIDATED()
+                        if (cla != CLA_ETH) {
+                            THROW(APDU_CODE_COMMAND_NOT_ALLOWED);
+                        }
+                        handleSignEth(flags, tx, rx);
+                        break;
                     }
-                    handleSignEth(flags, tx, rx);
-                    break;
-                }
 
-                default:
-                    THROW(APDU_CODE_INS_NOT_SUPPORTED);
+                    default:
+                        THROW(APDU_CODE_INS_NOT_SUPPORTED);
+                }
             }
         }
         CATCH(EXCEPTION_IO_RESET) { THROW(EXCEPTION_IO_RESET); }
