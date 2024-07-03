@@ -311,10 +311,10 @@ __Z_INLINE parser_error_t get_subitem_count(root_item_e root_item, uint8_t *num_
 
     switch (root_item) {
         case root_item_chain_id:
+            break;
         case root_item_sequence:
         case root_item_account_number:
-            CHECK_ERROR(parser_is_expert_mode_or_not_default_chainid(&is_expert_or_default))
-            if (!is_expert_or_default) {
+            if (!app_mode_expert()) {
                 tmp_num_items = 0;
             }
             break;
@@ -335,9 +335,8 @@ __Z_INLINE parser_error_t get_subitem_count(root_item_e root_item, uint8_t *num_
         case root_item_memo:
             break;
         case root_item_fee:
-            CHECK_ERROR(parser_is_expert_mode_or_not_default_chainid(&is_expert_or_default))
-            if (!is_expert_or_default) {
-                tmp_num_items = 1;  // Only Amount
+            if (!app_mode_expert()) {
+                tmp_num_items = 1;
             }
             break;
         case root_item_tip:
@@ -437,7 +436,7 @@ parser_error_t parser_display_query(uint16_t displayIdx, char *outKey, uint16_t 
 
 static const key_subst_t key_substitutions[] = {
     {"chain_id", "Chain ID"},
-    {"account_number", "Account"},
+    {"account_number", "Account number"},
     {"sequence", "Sequence"},
     {"memo", "Memo"},
     {"fee/amount", "Fee"},
@@ -447,37 +446,19 @@ static const key_subst_t key_substitutions[] = {
     {"fee/payer", "Payer"},
     {"msgs/type", "Type"},
 
-    {"tip/amount", "Tip"},
-    {"tip/tipper", "Tipper"},
-
-    {"msgs/inputs/address", "Source Address"},
-    {"msgs/inputs/coins", "Source Coins"},
-    {"msgs/outputs/address", "Dest Address"},
-    {"msgs/outputs/coins", "Dest Coins"},
-
-    {"msgs/value/inputs/address", "Source Address"},
-    {"msgs/value/inputs/coins", "Source Coins"},
-    {"msgs/value/outputs/address", "Dest Address"},
-    {"msgs/value/outputs/coins", "Dest Coins"},
-
-    {"msgs/value/from_address", "From"},
-    {"msgs/value/to_address", "To"},
+    {"msgs/value/from_address", "From address"},
+    {"msgs/value/to_address", "To address"},
     {"msgs/value/amount", "Amount"},
-    {"msgs/value/delegator_address", "Delegator"},
-    {"msgs/value/validator_address", "Validator"},
-    {"msgs/value/withdraw_address", "Withdraw Address"},
-    {"msgs/value/validator_src_address", "Validator Source"},
-    {"msgs/value/validator_dst_address", "Validator Dest"},
-    {"msgs/value/description", "Description"},
-    {"msgs/value/initial_deposit/amount", "Deposit Amount"},
-    {"msgs/value/initial_deposit/denom", "Deposit Denom"},
-    {"msgs/value/proposal_type", "Proposal"},
-    {"msgs/value/proposer", "Proposer"},
-    {"msgs/value/title", "Title"},
-    {"msgs/value/depositor", "Sender"},
-    {"msgs/value/proposal_id", "Proposal ID"},
-    {"msgs/value/voter", "Description"},
-    {"msgs/value/option", "Option"},
+    {"msgs/value/delegator_address", "Delegator address"},
+    {"msgs/value/validator_address", "Validator address"},
+    {"msgs/value/validator_dst_address", "Validator dest"},
+    {"msgs/value/validator_src_address", "Validator source"},
+    {"msgs/value/inputs", "Inputs"},
+    {"msgs/value/outputs", "Outputs"},
+    {"msgs/value/contract", "Contract address"},
+    {"msgs/value/funds", "Funds"},
+    {"msgs/value/msg", "Msg"},
+    {"msgs/value/sender", "Sender address"},
 };
 
 parser_error_t parser_display_make_friendly() {
@@ -563,13 +544,6 @@ __Z_INLINE parser_error_t is_default_denom_base(const char *denom, uint8_t denom
         return parser_unexpected_value;
     }
 
-    bool is_expert_or_default = false;
-    CHECK_ERROR(parser_is_expert_mode_or_not_default_chainid(&is_expert_or_default))
-    if (is_expert_or_default) {
-        *is_default = false;
-        return parser_ok;
-    }
-
     if (strlen(COIN_DEFAULT_DENOM_BASE) != denom_len) {
         *is_default = false;
         return parser_ok;
@@ -581,6 +555,33 @@ __Z_INLINE parser_error_t is_default_denom_base(const char *denom, uint8_t denom
     }
 
     return parser_ok;
+}
+
+void remove_fraction(char *s) {
+    size_t len = strlen(s);
+
+    // Find the decimal point
+    char *decimal_point = strchr(s, '.');
+    if (decimal_point == NULL) {
+        // No decimal point found, nothing to remove
+        return;
+    }
+
+    // Find the end of the string up to the decimal point
+    size_t end_index = decimal_point - s;
+
+    // Find the first non-zero digit after the decimal point
+    size_t non_zero_index = end_index + 1;
+    while (s[non_zero_index] == '0') {
+        non_zero_index++;
+    }
+
+    // Check if there is a non-zero digit after the decimal point
+    if (non_zero_index >= len) {
+        // There is no non-zero digit after the decimal point
+        // Remove the decimal point and trailing zeros
+        s[end_index] = '\0';
+    }
 }
 
 __Z_INLINE parser_error_t parser_formatAmountItem(uint16_t amountToken, char *outVal, uint16_t outValLen, uint8_t pageIdx,
@@ -651,11 +652,13 @@ __Z_INLINE parser_error_t parser_formatAmountItem(uint16_t amountToken, char *ou
     // If denomination has been recognized format and replace
     bool is_default = false;
     CHECK_ERROR(is_default_denom_base(denomPtr, denomLen, &is_default))
+
     if (is_default) {
         if (fpstr_to_str(bufferUI, sizeof(bufferUI), tmpAmount, COIN_DEFAULT_DENOM_FACTOR) != 0) {
             return parser_unexpected_error;
         }
-        number_inplace_trimming(bufferUI, COIN_DEFAULT_DENOM_TRIMMING);
+        number_inplace_trimming(bufferUI, 1);
+        remove_fraction(bufferUI);
         snprintf(tmpDenom, sizeof(tmpDenom), " %s", COIN_DEFAULT_DENOM_REPR);
     }
 

@@ -47,10 +47,10 @@ class JsonTestsA : public ::testing::TestWithParam<testcase_t> {
 std::vector<testcase_t> GetJsonTestCases(std::string jsonFile) {
     auto answer = std::vector<testcase_t>();
 
-    Json::CharReaderBuilder builder;
+    const Json::CharReaderBuilder builder;
     Json::Value obj;
 
-    std::string fullPathJsonFile = std::string(TESTVECTORS_DIR) + jsonFile;
+    const std::string fullPathJsonFile = std::string(TESTVECTORS_DIR) + jsonFile;
 
     std::ifstream inFile(fullPathJsonFile);
     if (!inFile.is_open()) {
@@ -161,9 +161,16 @@ void check_testcase(const testcase_t &tc, bool expert_mode, bool is_eth) {
 }
 
 class VerifyEvmTransactions : public JsonTestsA {};
+class VerifyJSONTransactions : public JsonTestsA {};
 
 INSTANTIATE_TEST_SUITE_P(EVMTransactions, VerifyEvmTransactions,
-                         ::testing::ValuesIn(GetEVMJsonTestCases("evm.json", EVMGenerateExpectedUIOutput)),
+                         ::testing::ValuesIn(GetEVMJsonTestCases("testvectors/evm.json", EVMGenerateExpectedUIOutput)),
+                         JsonTestsA::PrintToStringParamName());
+
+INSTANTIATE_TEST_SUITE_P(JSONTransactions, VerifyJSONTransactions,
+                         ::testing::ValuesIn(GetJsonTestCases("testvectors/amino.json")),
                          JsonTestsA::PrintToStringParamName());
 
 TEST_P(VerifyEvmTransactions, CheckUIOutput_CurrentTX_Normal) { check_testcase(GetParam(), false, true); }
+TEST_P(VerifyJSONTransactions, CheckUIOutput_CurrentTX_Normal) { check_testcase(GetParam(), false, false); }
+TEST_P(VerifyJSONTransactions, CheckUIOutput_CurrentTX_Expert) { check_testcase(GetParam(), true, false); }

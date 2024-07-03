@@ -55,7 +55,7 @@ extern "C" {
 #define COIN_DEFAULT_DENOM_FACTOR 6u
 #define COIN_DEFAULT_DENOM_TRIMMING 6u
 
-#define COIN_DEFAULT_DENOM_BASE "sei"
+#define COIN_DEFAULT_DENOM_BASE "usei"
 #define COIN_DEFAULT_DENOM_REPR "SEI"
 
 // Coin denoms may be up to 128 characters long

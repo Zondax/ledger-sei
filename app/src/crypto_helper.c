@@ -21,7 +21,6 @@
 #if defined(TARGET_NANOS) || defined(TARGET_NANOS2) || defined(TARGET_NANOX) || defined(TARGET_STAX)
 #include "cx.h"
 #else
-#include "picohash.h"
 #define CX_SHA256_SIZE 32
 #define CX_RIPEMD160_SIZE 20
 #endif
@@ -41,11 +40,6 @@ zxerr_t crypto_sha256(const uint8_t *input, uint16_t inputLen, uint8_t *output, 
     memset(&ctx, 0, sizeof(ctx));
     cx_sha256_init_no_throw(&ctx);
     CHECK_CX_OK(cx_hash_no_throw(&ctx.header, CX_LAST, input, inputLen, output, CX_SHA256_SIZE));
-#else
-    picohash_ctx_t ctx;
-    picohash_init_sha256(&ctx);
-    picohash_update(&ctx, input, inputLen);
-    picohash_final(&ctx, output);
 #endif
     return zxerr_ok;
 }

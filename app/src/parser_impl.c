@@ -72,18 +72,7 @@ parser_error_t _read(parser_context_t *ctx, __Z_UNUSED parser_tx_t *v) {
 }
 
 static const key_subst_t value_substitutions[] = {
-    {"cosmos-sdk/MsgSend", "Send"},
-    {"cosmos-sdk/MsgDelegate", "Delegate"},
-    {"cosmos-sdk/MsgUndelegate", "Undelegate"},
-    {"cosmos-sdk/MsgBeginRedelegate", "Redelegate"},
-    {"cosmos-sdk/MsgSubmitProposal", "Propose"},
-    {"cosmos-sdk/MsgDeposit", "Deposit"},
-    {"cosmos-sdk/MsgVote", "Vote"},
-    {"cosmos-sdk/MsgWithdrawDelegationReward", "Withdraw Reward"},
-    {"cosmos-sdk/MsgWithdrawValidatorCommission", "Withdraw Val. Commission"},
-    {"cosmos-sdk/MsgSetWithdrawAddress", "Withdraw Set Address"},
-    {"cosmos-sdk/MsgMultiSend", "Multi Send"},
-
+    {"wasm/MsgExecuteContract", "cosmos-sdk/MsgExecuteContract"},
 };
 
 parser_error_t parser_getToken(uint16_t token_index, char *out_val, uint16_t out_val_len, uint8_t pageIdx,
