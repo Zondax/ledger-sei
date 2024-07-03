@@ -55,6 +55,21 @@ typedef enum {
     parser_unexpected_chain,
     parser_missing_field,
     paser_unknown_transaction,
+    parser_query_no_results,
+    parser_transaction_too_big,
+    // Coin Specific
+    parser_json_zero_tokens,
+    parser_json_too_many_tokens,  // "NOMEM: JSON string contains too many tokens"
+    parser_json_incomplete_json,  // "JSON string is not complete";
+    parser_json_contains_whitespace,
+    parser_json_is_not_sorted,
+    parser_json_missing_chain_id,
+    parser_json_missing_sequence,
+    parser_json_missing_fee,
+    parser_json_missing_msgs,
+    parser_json_missing_account_number,
+    parser_json_missing_memo,
+    parser_json_unexpected_error,
 
     parser_unsupported_tx,
     parser_invalid_rs_values,
