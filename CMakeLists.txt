@@ -126,6 +126,9 @@ add_definitions(
 #
 # #############################################################
 # static libs
+file(GLOB_RECURSE JSMN_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/jsmn/src/jsmn.c
+)
 file(GLOB_RECURSE LIB_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/app_mode.c
     ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/base58.c
@@ -147,7 +150,7 @@ file(GLOB_RECURSE LIB_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/crypto_helper.c
 )
 
-add_library(app_lib STATIC ${LIB_SRC})
+add_library(app_lib STATIC ${LIB_SRC} ${JSMN_SRC})
 
 target_include_directories(app_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/include
@@ -156,6 +159,7 @@ target_include_directories(app_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/common
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm
     ${CMAKE_CURRENT_SOURCE_DIR}/deps/picohash/
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/jsmn/src
 )
 
 # #############################################################
@@ -178,6 +182,7 @@ else()
 
     add_executable(unittests ${TESTS_SRC})
     target_include_directories(unittests PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/deps/jsmn/src
         ${CMAKE_CURRENT_SOURCE_DIR}/app/src
         ${CMAKE_CURRENT_SOURCE_DIR}/app/src/lib
     )
