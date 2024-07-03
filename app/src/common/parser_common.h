@@ -22,8 +22,6 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-#include "parser_txdef.h"
-
 #define CHECK_ERROR(__CALL)                   \
     {                                         \
         parser_error_t __err = __CALL;        \
@@ -75,13 +73,6 @@ typedef enum {
     parser_invalid_rs_values,
     parser_invalid_chain_id,
 } parser_error_t;
-
-typedef struct {
-    const uint8_t *buffer;
-    uint16_t bufferLen;
-    uint16_t offset;
-    parser_tx_t *tx_obj;
-} parser_context_t;
 
 #ifdef __cplusplus
 }

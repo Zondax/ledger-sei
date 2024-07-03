@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  (c) 2018 - 2024 Zondax AG
+ *   (c) 2018-2024 Zondax AG
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,38 +13,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
+
 #pragma once
 
-#include <zxmacros.h>
+#include <parser_common.h>
+#include <stdint.h>
 
-#include "parser_common.h"
-#include "parser_txdef.h"
-#include "zxtypes.h"
+#include "json_parser.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
-    const uint8_t *buffer;
-    uint16_t bufferLen;
-    uint16_t offset;
-    parser_tx_t *tx_obj;
-} parser_context_t;
-
-typedef struct {
-    const char *str1;
-    const char *str2;
-} key_subst_t;
-
-typedef struct {
-    char ascii_code;
-    char str;
-} ascii_subst_t;
-
-extern parser_tx_t parser_tx_obj;
-
-parser_error_t _read(parser_context_t *c, parser_tx_t *v);
+/// Validate json transaction
+/// \param parsed_transacton
+/// \param transaction
+/// \return
+parser_error_t parser_json_validate(parsed_json_t *json);
 
 #ifdef __cplusplus
 }
