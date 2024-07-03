@@ -44,6 +44,26 @@ extern "C" {
 #define APPVERSION_LINE1 "Sei"
 #define APPVERSION_LINE2 "v" APPVERSION
 
+#define COIN_DEFAULT_CHAINID "atlantic-2"
+
+#define COIN_MAX_CHAINID_LEN 20u
+#define INDEXING_TMP_KEYSIZE 70u
+#define INDEXING_TMP_VALUESIZE 70u
+#define INDEXING_GROUPING_REF_TYPE_SIZE 70u
+#define INDEXING_GROUPING_REF_FROM_SIZE 70u
+
+#define COIN_DEFAULT_DENOM_FACTOR 6u
+#define COIN_DEFAULT_DENOM_TRIMMING 6u
+
+#define COIN_DEFAULT_DENOM_BASE "sei"
+#define COIN_DEFAULT_DENOM_REPR "SEI"
+
+// Coin denoms may be up to 128 characters long
+// https://github.com/cosmos/cosmos-sdk/blob/master/types/coin.go#L780
+// https://github.com/cosmos/ibc-go/blob/main/docs/architecture/adr-001-coin-source-tracing.md
+#define COIN_DENOM_MAXSIZE 129
+#define COIN_AMOUNT_MAXSIZE 50
+
 #ifdef __cplusplus
 }
 #endif

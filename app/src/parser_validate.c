@@ -1,5 +1,5 @@
 /*******************************************************************************
- *   (c) 2018, 2019 Zondax GmbH
+ *   (c) 2018-2024 Zondax AG
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -127,6 +127,10 @@ int8_t dictionaries_sorted(parsed_json_t *json) {
 }
 
 parser_error_t parser_json_validate(parsed_json_t *json) {
+    if (json == NULL) {
+        return parser_json_zero_tokens;
+    }
+
     if (contains_whitespace(json) == 1) {
         return parser_json_contains_whitespace;
     }
