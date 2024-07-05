@@ -41,8 +41,6 @@ const char *get_required_root_item(root_item_e i) {
             return "memo";
         case root_item_msgs:
             return "msgs";
-        case root_item_tip:
-            return "tip";
         default:
             return "?";
     }
@@ -62,8 +60,6 @@ __Z_INLINE uint8_t get_root_max_level(root_item_e i) {
             return 2;
         case root_item_msgs:
             return extraDepthLevel ? 3 : 2;
-        case root_item_tip:
-            return 1;
         default:
             return 0;
     }
@@ -93,12 +89,8 @@ __Z_INLINE parser_error_t calculate_is_default_chainid() {
     if (strcmp(outVal, COIN_DEFAULT_CHAINID) == 0) {
         // If we don't match the default chainid, switch to expert mode
         display_cache.is_default_chain = true;
-        zemu_log_stack("DEFAULT Chain ");
     } else if ((outVal[0] == 0x30 || outVal[0] == 0x31) && strlen(outVal) == 1) {
-        zemu_log_stack("Not Allowed chain");
         return parser_unexpected_chain;
-    } else {
-        zemu_log_stack("Chain is NOT DEFAULT");
     }
 
     return parser_ok;
@@ -118,10 +110,6 @@ parser_error_t parser_indexRootFields() {
     if (parser_tx_obj.flags.cache_valid) {
         return parser_ok;
     }
-
-#ifdef APP_TESTING
-    zemu_log("tx_indexRootFields");
-#endif
 
     // Clear cache
     MEMZERO(&display_cache, sizeof(display_cache_t));
@@ -180,8 +168,6 @@ parser_error_t parser_indexRootFields() {
             CHECK_ERROR(parser_getToken(ret_value_token_index, parser_tx_obj.query.out_val, parser_tx_obj.query.out_val_len,
                                         0, &pageCount))
 
-            ZEMU_LOGF(200, "[ZEMU] %s : %s", tmp_key, parser_tx_obj.query.out_val)
-
             switch (root_item_idx) {
                 case root_item_memo: {
                     if (strlen(parser_tx_obj.query.out_val) == 0) {
@@ -233,8 +219,6 @@ parser_error_t parser_indexRootFields() {
                         parser_tx_obj.filter_msg_from_count++;
                     }
 
-                    ZEMU_LOGF(200, "[ZEMU] %s [%d/%d]", tmp_key, parser_tx_obj.filter_msg_type_count,
-                              parser_tx_obj.filter_msg_from_count);
                     break;
                 }
                 default:
@@ -307,7 +291,6 @@ __Z_INLINE parser_error_t get_subitem_count(root_item_e root_item, uint8_t *num_
     }
 
     int32_t tmp_num_items = display_cache.root_item_number_subitems[root_item];
-    bool is_expert_or_default = false;
 
     switch (root_item) {
         case root_item_chain_id:
@@ -442,8 +425,6 @@ static const key_subst_t key_substitutions[] = {
     {"fee/amount", "Fee"},
     {"fee/gas", "Gas"},
     {"fee/gas_limit", "Gas Limit"},
-    {"fee/granter", "Granter"},
-    {"fee/payer", "Payer"},
     {"msgs/type", "Type"},
 
     {"msgs/value/from_address", "From address"},
@@ -509,22 +490,6 @@ __Z_INLINE bool parser_areEqual(uint16_t tokenIdx, const char *expected) {
 
 bool parser_isAmount(char *key) {
     if (strcmp(key, "fee/amount") == 0) {
-        return true;
-    }
-
-    if (strcmp(key, "msgs/inputs/coins") == 0) {
-        return true;
-    }
-
-    if (strcmp(key, "msgs/outputs/coins") == 0) {
-        return true;
-    }
-
-    if (strcmp(key, "msgs/value/inputs/coins") == 0) {
-        return true;
-    }
-
-    if (strcmp(key, "msgs/value/outputs/coins") == 0) {
         return true;
     }
 
@@ -613,7 +578,7 @@ __Z_INLINE parser_error_t parser_formatAmountItem(uint16_t amountToken, char *ou
         return parser_unexpected_field;
     }
 
-    char bufferUI[160];
+    char bufferUI[100];
     char tmpDenom[COIN_DENOM_MAXSIZE];
     char tmpAmount[COIN_AMOUNT_MAXSIZE];
     MEMZERO(tmpDenom, sizeof tmpDenom);
@@ -670,8 +635,6 @@ __Z_INLINE parser_error_t parser_formatAmountItem(uint16_t amountToken, char *ou
 
 parser_error_t parser_formatAmount(uint16_t amountToken, char *outVal, uint16_t outValLen, uint8_t pageIdx,
                                    uint8_t *pageCount) {
-    ZEMU_LOGF(200, "[formatAmount] ------- pageidx %d", pageIdx)
-
     *pageCount = 0;
     if (parser_tx_obj.json.tokens[amountToken].type != JSMN_ARRAY) {
         return parser_formatAmountItem(amountToken, outVal, outValLen, pageIdx, pageCount);
@@ -694,14 +657,10 @@ parser_error_t parser_formatAmount(uint16_t amountToken, char *outVal, uint16_t 
         CHECK_ERROR(parser_formatAmountItem(itemTokenIdx, outVal, outValLen, 0, &subpagesCount));
         totalPages += subpagesCount;
 
-        ZEMU_LOGF(200, "[formatAmount] [%d] TokenIdx: %d - PageIdx: %d - Pages: %d - Total %d", i, itemTokenIdx, showPageIdx,
-                  subpagesCount, totalPages)
-
         if (!showItemSet) {
             if (showPageIdx < subpagesCount) {
                 showItemSet = 1;
                 showItemTokenIdx = itemTokenIdx;
-                ZEMU_LOGF(200, "[formatAmount] [%d] [SET] TokenIdx %d - PageIdx: %d", i, showItemTokenIdx, showPageIdx)
             } else {
                 showPageIdx -= subpagesCount;
             }

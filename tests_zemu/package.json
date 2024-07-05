@@ -30,6 +30,7 @@
   "devDependencies": {
     "@types/elliptic": "^6.4.14",
     "@types/jest": "^29.5.12",
+    "@types/secp256k1": "^4.0.6",
     "@types/ledgerhq__hw-transport": "^4.21.8",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",

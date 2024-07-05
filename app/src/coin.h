@@ -44,7 +44,7 @@ extern "C" {
 #define APPVERSION_LINE1 "Sei"
 #define APPVERSION_LINE2 "v" APPVERSION
 
-#define COIN_DEFAULT_CHAINID "atlantic-2"
+#define COIN_DEFAULT_CHAINID "pacific-1"
 
 #define COIN_MAX_CHAINID_LEN 20u
 #define INDEXING_TMP_KEYSIZE 70u
