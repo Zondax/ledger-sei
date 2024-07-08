@@ -37,7 +37,7 @@ extern "C" {
 // we must limit the number
 #if defined(TARGET_NANOS)
 #undef MAX_NUMBER_OF_TOKENS
-#define MAX_NUMBER_OF_TOKENS 96
+#define MAX_NUMBER_OF_TOKENS 84
 #endif
 
 #if defined(TARGET_STAX)
