@@ -202,29 +202,29 @@
         "output": [
             "0 | Chain ID : atlantic-2",
             "1 | Type : cosmos-sdk/MsgMultiSend",
-            "2 | Inputs [1/3] : [{\"address\":\"sei14ae4g3422thcyuxler2ws",
-            "2 | Inputs [2/3] : 3w25fpesrh2uqmgm9\",\"coins\":[{\"amount\":",
-            "2 | Inputs [3/3] : \"1000000\",\"denom\":\"usei\"}]}]",
-            "3 | Outputs [1/3] : [{\"address\":\"sei1cdvr6tns50wv03ek94ds6",
-            "3 | Outputs [2/3] : vnxh7pl3pmm9amstu\",\"coins\":[{\"amount\":",
-            "3 | Outputs [3/3] : \"1000000\",\"denom\":\"usei\"}]}]",
-            "4 | Memo : Multisend",
-            "5 | Fee : 0.01 SEI"
+            "2 | Source Address [1/2] : sei14ae4g3422thcyuxler2ws3w25fpesrh2uq",
+            "2 | Source Address [2/2] : mgm9",
+            "3 | Source Coins : 1 SEI",
+            "4 | Dest Address [1/2] : sei1cdvr6tns50wv03ek94ds6vnxh7pl3pmm9a",
+            "4 | Dest Address [2/2] : mstu",
+            "5 | Dest Coins : 1 SEI",
+            "6 | Memo : Multisend",
+            "7 | Fee : 0.01 SEI"
         ],
         "output_expert": [
             "0 | Chain ID : atlantic-2",
             "1 | Account number : 1227",
             "2 | Sequence : 183653",
             "3 | Type : cosmos-sdk/MsgMultiSend",
-            "4 | Inputs [1/3] : [{\"address\":\"sei14ae4g3422thcyuxler2ws",
-            "4 | Inputs [2/3] : 3w25fpesrh2uqmgm9\",\"coins\":[{\"amount\":",
-            "4 | Inputs [3/3] : \"1000000\",\"denom\":\"usei\"}]}]",
-            "5 | Outputs [1/3] : [{\"address\":\"sei1cdvr6tns50wv03ek94ds6",
-            "5 | Outputs [2/3] : vnxh7pl3pmm9amstu\",\"coins\":[{\"amount\":",
-            "5 | Outputs [3/3] : \"1000000\",\"denom\":\"usei\"}]}]",
-            "6 | Memo : Multisend",
-            "7 | Fee : 0.01 SEI",
-            "8 | Gas : 100000"
+            "4 | Source Address [1/2] : sei14ae4g3422thcyuxler2ws3w25fpesrh2uq",
+            "4 | Source Address [2/2] : mgm9",
+            "5 | Source Coins : 1 SEI",
+            "6 | Dest Address [1/2] : sei1cdvr6tns50wv03ek94ds6vnxh7pl3pmm9a",
+            "6 | Dest Address [2/2] : mstu",
+            "7 | Dest Coins : 1 SEI",
+            "8 | Memo : Multisend",
+            "9 | Fee : 0.01 SEI",
+            "10 | Gas : 100000"
         ]
     }
 ]

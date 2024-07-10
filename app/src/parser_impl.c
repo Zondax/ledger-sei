@@ -58,6 +58,7 @@ const char *parser_getErrorDescription(parser_error_t err) {
 }
 
 parser_error_t _read(parser_context_t *ctx, __Z_UNUSED parser_tx_t *v) {
+    extraDepthLevel = false;
     parser_error_t err = json_parse(&parser_tx_obj.json, (const char *)ctx->buffer, ctx->bufferLen);
     if (err != parser_ok) {
         return err;
@@ -73,6 +74,7 @@ parser_error_t _read(parser_context_t *ctx, __Z_UNUSED parser_tx_t *v) {
 
 static const key_subst_t value_substitutions[] = {
     {"wasm/MsgExecuteContract", "cosmos-sdk/MsgExecuteContract"},
+    {"cosmos-sdk/MsgMultiSend", "cosmos-sdk/MsgMultiSend"},
 };
 
 parser_error_t parser_getToken(uint16_t token_index, char *out_val, uint16_t out_val_len, uint8_t pageIdx,

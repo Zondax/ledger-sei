@@ -440,6 +440,11 @@ static const key_subst_t key_substitutions[] = {
     {"msgs/value/funds", "Funds"},
     {"msgs/value/msg", "Msg"},
     {"msgs/value/sender", "Sender address"},
+
+    {"msgs/value/inputs/address", "Source Address"},
+    {"msgs/value/inputs/coins", "Source Coins"},
+    {"msgs/value/outputs/address", "Dest Address"},
+    {"msgs/value/outputs/coins", "Dest Coins"},
 };
 
 parser_error_t parser_display_make_friendly() {
@@ -498,6 +503,14 @@ bool parser_isAmount(char *key) {
     }
 
     if (strcmp(key, "tip/amount") == 0) {
+        return true;
+    }
+
+    if (strcmp(key, "msgs/value/inputs/coins") == 0) {
+        return true;
+    }
+
+    if (strcmp(key, "msgs/value/outputs/coins") == 0) {
         return true;
     }
 
