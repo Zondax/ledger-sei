@@ -68,7 +68,7 @@ describe('Standard', function () {
       await sim.start({ ...defaultOptions, model: m.name })
       const app = new SeiApp(sim.getTransport())
 
-      const resp = await app.getAddressAndPubKey(ETH_PATH, false, 'sei')
+      const resp = await app.getAddressAndPubKey(ETH_PATH, false)
 
       console.log(resp)
 
@@ -90,7 +90,7 @@ describe('Standard', function () {
       })
       const app = new SeiApp(sim.getTransport())
 
-      const respRequest = app.getAddressAndPubKey(ETH_PATH, true, 'sei')
+      const respRequest = app.getAddressAndPubKey(ETH_PATH, true)
       //Wait until we are not in the main menu
       await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot())
       await sim.compareSnapshotsAndApprove('.', `${m.prefix.toLowerCase()}-show_address`)
@@ -118,7 +118,7 @@ describe('Standard', function () {
       // Activate expert mode
       await sim.toggleExpertMode()
 
-      const respRequest = app.getAddressAndPubKey(ETH_PATH, true, 'sei')
+      const respRequest = app.getAddressAndPubKey(ETH_PATH, true)
       //Wait until we are not in the main menu
       await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot())
       await sim.compareSnapshotsAndApprove('.', `${m.prefix.toLowerCase()}-show_address_expert`)
