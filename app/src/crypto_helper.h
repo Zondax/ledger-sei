@@ -34,11 +34,6 @@ extern "C" {
         }                         \
     } while (0)
 
-#define MAX_BECH32_HRP_LEN 83u
-
-extern uint8_t bech32_hrp_len;
-extern char bech32_hrp[MAX_BECH32_HRP_LEN + 1];
-
 zxerr_t keccak_digest(const unsigned char *in, unsigned int inLen, unsigned char *out, unsigned int outLen);
 
 uint8_t crypto_encodePubkey(const uint8_t *pubkey, char *out, uint16_t out_len);

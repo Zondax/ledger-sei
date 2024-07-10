@@ -17,12 +17,10 @@
 
 #include "bech32.h"
 #include "coin.h"
+#include "crypto.h"
 #include "zxformat.h"
 #define CX_SHA256_SIZE 32
 #define CX_RIPEMD160_SIZE 20
-
-uint8_t bech32_hrp_len;
-char bech32_hrp[MAX_BECH32_HRP_LEN + 1];
 
 uint8_t crypto_encodePubkey(const uint8_t *pubkey, char *out, uint16_t out_len) {
     if (pubkey == NULL || out == NULL) {
@@ -36,7 +34,7 @@ uint8_t crypto_encodePubkey(const uint8_t *pubkey, char *out, uint16_t out_len) 
     uint8_t hashed2_pk[CX_RIPEMD160_SIZE] = {0};
     CHECK_ZXERR(ripemd160_32(hashed2_pk, hashed1_pk))
 
-    CHECK_ZXERR(bech32EncodeFromBytes(out, out_len, bech32_hrp, hashed2_pk, CX_RIPEMD160_SIZE, 1, BECH32_ENCODING_BECH32))
+    CHECK_ZXERR(bech32EncodeFromBytes(out, out_len, "sei", hashed2_pk, CX_RIPEMD160_SIZE, 1, BECH32_ENCODING_BECH32))
 
     return strlen(out);
 }

@@ -51,24 +51,6 @@ void extractHDPath(uint32_t rx, uint32_t offset) {
     hdPath_len = HDPATH_LEN_DEFAULT;
 }
 
-uint8_t extractHRP(uint32_t rx, uint32_t offset) {
-    if (rx < offset + 1) {
-        THROW(APDU_CODE_DATA_INVALID);
-    }
-    MEMZERO(bech32_hrp, MAX_BECH32_HRP_LEN);
-
-    bech32_hrp_len = G_io_apdu_buffer[offset];
-
-    if (bech32_hrp_len == 0 || bech32_hrp_len > MAX_BECH32_HRP_LEN) {
-        THROW(APDU_CODE_DATA_INVALID);
-    }
-
-    memcpy(bech32_hrp, G_io_apdu_buffer + offset + 1, bech32_hrp_len);
-    bech32_hrp[bech32_hrp_len] = 0;  // zero terminate
-
-    return bech32_hrp_len;
-}
-
 __Z_INLINE bool process_chunk(__Z_UNUSED volatile uint32_t *tx, uint32_t rx) {
     const uint8_t payloadType = G_io_apdu_buffer[OFFSET_PAYLOAD_TYPE];
     if (rx < OFFSET_DATA) {
@@ -137,8 +119,7 @@ __Z_INLINE void handle_getversion(__Z_UNUSED volatile uint32_t *flags, volatile 
 
 __Z_INLINE void handleGetAddr(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
     zemu_log("handleGetAddr\n");
-    uint8_t len = extractHRP(rx, OFFSET_DATA);
-    extractHDPath(rx, OFFSET_DATA + 1 + len);
+    extractHDPath(rx, OFFSET_DATA);
     uint8_t requireConfirmation = G_io_apdu_buffer[OFFSET_P1];
 
     zxerr_t zxerr = app_fill_address();
