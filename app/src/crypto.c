@@ -25,6 +25,29 @@
 uint32_t hdPath[HDPATH_LEN_DEFAULT];
 uint32_t hdPath_len;
 
+zxerr_t crypto_sha256(const uint8_t *input, uint16_t inputLen, uint8_t *output, uint16_t outputLen) {
+    if (input == NULL || output == NULL || outputLen < CX_SHA256_SIZE) {
+        return zxerr_encoding_failed;
+    }
+
+    MEMZERO(output, outputLen);
+
+    cx_sha256_t ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    cx_sha256_init_no_throw(&ctx);
+    CHECK_CX_OK(cx_hash_no_throw(&ctx.header, CX_LAST, input, inputLen, output, CX_SHA256_SIZE));
+
+    return zxerr_ok;
+}
+
+zxerr_t ripemd160_32(uint8_t *out, uint8_t *in) {
+    cx_ripemd160_t rip160 = {0};
+    cx_ripemd160_init(&rip160);
+    CHECK_CX_OK(cx_hash_no_throw(&rip160.header, CX_LAST, in, CX_SHA256_SIZE, out, CX_RIPEMD160_SIZE));
+
+    return zxerr_ok;
+}
+
 static zxerr_t crypto_extractUncompressedPublicKey(uint8_t *pubKey, uint16_t pubKeyLen) {
     if (pubKey == NULL || pubKeyLen < PK_LEN_SECP256K1_UNCOMPRESSED) {
         return zxerr_invalid_crypto_settings;

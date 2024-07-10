@@ -18,40 +18,11 @@
 #include "bech32.h"
 #include "coin.h"
 #include "zxformat.h"
-#if defined(TARGET_NANOS) || defined(TARGET_NANOS2) || defined(TARGET_NANOX) || defined(TARGET_STAX)
-#include "cx.h"
-#else
 #define CX_SHA256_SIZE 32
 #define CX_RIPEMD160_SIZE 20
-#endif
 
 uint8_t bech32_hrp_len;
 char bech32_hrp[MAX_BECH32_HRP_LEN + 1];
-
-zxerr_t crypto_sha256(const uint8_t *input, uint16_t inputLen, uint8_t *output, uint16_t outputLen) {
-    if (input == NULL || output == NULL || outputLen < CX_SHA256_SIZE) {
-        return zxerr_encoding_failed;
-    }
-
-    MEMZERO(output, outputLen);
-
-#if defined(TARGET_NANOS) || defined(TARGET_NANOS2) || defined(TARGET_NANOX) || defined(TARGET_STAX)
-    cx_sha256_t ctx;
-    memset(&ctx, 0, sizeof(ctx));
-    cx_sha256_init_no_throw(&ctx);
-    CHECK_CX_OK(cx_hash_no_throw(&ctx.header, CX_LAST, input, inputLen, output, CX_SHA256_SIZE));
-#endif
-    return zxerr_ok;
-}
-
-zxerr_t ripemd160_32(uint8_t *out, uint8_t *in) {
-#if defined(TARGET_NANOS) || defined(TARGET_NANOS2) || defined(TARGET_NANOX) || defined(TARGET_STAX)
-    cx_ripemd160_t rip160 = {0};
-    cx_ripemd160_init(&rip160);
-    CHECK_CX_OK(cx_hash_no_throw(&rip160.header, CX_LAST, in, CX_SHA256_SIZE, out, CX_RIPEMD160_SIZE));
-#endif
-    return zxerr_ok;
-}
 
 uint8_t crypto_encodePubkey(const uint8_t *pubkey, char *out, uint16_t out_len) {
     if (pubkey == NULL || out == NULL) {
