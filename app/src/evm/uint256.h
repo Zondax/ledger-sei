@@ -23,7 +23,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "parser_common.h"
+#include "parser_impl.h"
 #include "zxmacros.h"
 
 #ifdef __cplusplus

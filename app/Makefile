@@ -75,6 +75,7 @@ $(error ICONNAME is not set)
 endif
 
 include $(CURDIR)/../deps/ledger-zxlib/makefiles/Makefile.platform
+APP_SOURCE_PATH += $(MY_DIR)/../deps/jsmn/src
 CFLAGS += -Wvla
 
 .PHONY: rust

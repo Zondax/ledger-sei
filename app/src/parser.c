@@ -25,6 +25,8 @@
 #include "crypto.h"
 #include "parser_common.h"
 #include "parser_impl.h"
+#include "parser_print.h"
+#include "parser_validate.h"
 
 parser_error_t parser_init_context(parser_context_t *ctx, const uint8_t *buffer, uint16_t bufferSize) {
     ctx->offset = 0;
@@ -33,6 +35,8 @@ parser_error_t parser_init_context(parser_context_t *ctx, const uint8_t *buffer,
 
     if (bufferSize == 0 || buffer == NULL) {
         // Not available, use defaults
+        ctx->buffer = NULL;
+        ctx->bufferLen = 0;
         return parser_init_context_empty;
     }
 
@@ -43,20 +47,24 @@ parser_error_t parser_init_context(parser_context_t *ctx, const uint8_t *buffer,
 
 parser_error_t parser_parse(parser_context_t *ctx, const uint8_t *data, size_t dataLen, parser_tx_t *tx_obj) {
     CHECK_ERROR(parser_init_context(ctx, data, dataLen))
-    ctx->tx_obj = tx_obj;
     return _read(ctx, tx_obj);
 }
 
-parser_error_t parser_validate(parser_context_t *ctx) {
+parser_error_t parser_validate(const parser_context_t *ctx) {
+    if (ctx->buffer == NULL || ctx->bufferLen == 0) {
+        return parser_init_context_empty;
+    }
+
+    CHECK_ERROR(parser_json_validate(&parser_tx_obj.json))
+
     // Iterate through all items to check that all can be shown and are valid
     uint8_t numItems = 0;
     CHECK_ERROR(parser_getNumItems(ctx, &numItems))
 
     char tmpKey[40] = {0};
     char tmpVal[40] = {0};
-
+    uint8_t pageCount = 0;
     for (uint8_t idx = 0; idx < numItems; idx++) {
-        uint8_t pageCount = 0;
         CHECK_ERROR(parser_getItem(ctx, idx, tmpKey, sizeof(tmpKey), tmpVal, sizeof(tmpVal), 0, &pageCount))
     }
     return parser_ok;
@@ -68,33 +76,47 @@ parser_error_t parser_getNumItems(const parser_context_t *ctx, uint8_t *num_item
     if (*num_items == 0) {
         return parser_unexpected_number_items;
     }
-    return parser_ok;
-}
 
-static void cleanOutput(char *outKey, uint16_t outKeyLen, char *outVal, uint16_t outValLen) {
-    MEMZERO(outKey, outKeyLen);
-    MEMZERO(outVal, outValLen);
-    snprintf(outKey, outKeyLen, "?");
-    snprintf(outVal, outValLen, " ");
-}
-
-static parser_error_t checkSanity(uint8_t numItems, uint8_t displayIdx) {
-    if (displayIdx >= numItems) {
-        return parser_display_idx_out_of_range;
-    }
-    return parser_ok;
+    return parser_display_numItems(num_items);
 }
 
 parser_error_t parser_getItem(const parser_context_t *ctx, uint8_t displayIdx, char *outKey, uint16_t outKeyLen,
                               char *outVal, uint16_t outValLen, uint8_t pageIdx, uint8_t *pageCount) {
-    UNUSED(pageIdx);
-    *pageCount = 1;
+    *pageCount = 0;
+    char tmpKey[35] = {0};
+
+    MEMZERO(outKey, outKeyLen);
+    MEMZERO(outVal, outValLen);
+
     uint8_t numItems = 0;
     CHECK_ERROR(parser_getNumItems(ctx, &numItems))
     CHECK_APP_CANARY()
 
-    CHECK_ERROR(checkSanity(numItems, displayIdx))
-    cleanOutput(outKey, outKeyLen, outVal, outValLen);
+    if (numItems == 0) {
+        return parser_unexpected_number_items;
+    }
 
-    return parser_display_idx_out_of_range;
+    if (displayIdx >= numItems) {
+        return parser_display_idx_out_of_range;
+    }
+
+    uint16_t ret_value_token_index = 0;
+    CHECK_ERROR(parser_display_query(displayIdx, tmpKey, sizeof(tmpKey), &ret_value_token_index))
+    CHECK_APP_CANARY()
+    snprintf(outKey, outKeyLen, "%s", tmpKey);
+
+    if (parser_isAmount(tmpKey)) {
+        CHECK_ERROR(parser_formatAmount(ret_value_token_index, outVal, outValLen, pageIdx, pageCount))
+    } else {
+        CHECK_ERROR(parser_getToken(ret_value_token_index, outVal, outValLen, pageIdx, pageCount))
+    }
+    CHECK_APP_CANARY()
+
+    CHECK_ERROR(parser_display_make_friendly())
+    CHECK_APP_CANARY()
+
+    snprintf(outKey, outKeyLen, "%s", tmpKey);
+    CHECK_APP_CANARY()
+
+    return parser_ok;
 }

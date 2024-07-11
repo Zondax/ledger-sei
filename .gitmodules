@@ -16,3 +16,6 @@
 [submodule "js"]
 	path = js
 	url = https://github.com/Zondax/ledger-sei-js
+[submodule "deps/picoHash"]
+	path = deps/picoHash
+	url = https://github.com/kazuho/picohash

@@ -1,5 +1,5 @@
 /** ******************************************************************************
- *  (c) 2018 - 2023 Zondax AG
+ *  (c) 2018 - 2024 Zondax AG
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  *  limitations under the License.
  ******************************************************************************* */
 
-import Zemu, { zondaxMainmenuNavigation } from '@zondax/zemu'
+import Zemu, { ButtonKind, zondaxMainmenuNavigation } from '@zondax/zemu'
 import { SeiApp } from '@zondax/ledger-sei'
-import { defaultOptions, models } from './common'
+import { ETH_PATH, EXPECTED_ADDRESS, EXPECTED_PK, defaultOptions, models } from './common'
 
 jest.setTimeout(60000)
 
@@ -57,6 +57,76 @@ describe('Standard', function () {
       } catch {
         console.log('getVersion error')
       }
+    } finally {
+      await sim.close()
+    }
+  })
+
+  test.concurrent.each(models)('get address', async function (m) {
+    const sim = new Zemu(m.path)
+    try {
+      await sim.start({ ...defaultOptions, model: m.name })
+      const app = new SeiApp(sim.getTransport())
+
+      const resp = await app.getAddressAndPubKey(ETH_PATH, false)
+
+      console.log(resp)
+
+      expect(resp.address).toEqual(EXPECTED_ADDRESS)
+      expect(resp.pubKey).toEqual(EXPECTED_PK)
+    } finally {
+      await sim.close()
+    }
+  })
+
+  test.concurrent.each(models)('show address', async function (m) {
+    const sim = new Zemu(m.path)
+    try {
+      await sim.start({
+        ...defaultOptions,
+        model: m.name,
+        approveKeyword: m.name === 'stax' ? 'QR' : '',
+        approveAction: ButtonKind.ApproveTapButton,
+      })
+      const app = new SeiApp(sim.getTransport())
+
+      const respRequest = app.getAddressAndPubKey(ETH_PATH, true)
+      //Wait until we are not in the main menu
+      await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot())
+      await sim.compareSnapshotsAndApprove('.', `${m.prefix.toLowerCase()}-show_address`)
+
+      const resp = await respRequest
+
+      expect(resp.address).toEqual(EXPECTED_ADDRESS)
+      expect(resp.pubKey).toEqual(EXPECTED_PK)
+    } finally {
+      await sim.close()
+    }
+  })
+
+  test.concurrent.each(models)('show address expert', async function (m) {
+    const sim = new Zemu(m.path)
+    try {
+      await sim.start({
+        ...defaultOptions,
+        model: m.name,
+        approveKeyword: m.name === 'stax' ? 'QR' : '',
+        approveAction: ButtonKind.ApproveTapButton,
+      })
+      const app = new SeiApp(sim.getTransport())
+
+      // Activate expert mode
+      await sim.toggleExpertMode()
+
+      const respRequest = app.getAddressAndPubKey(ETH_PATH, true)
+      //Wait until we are not in the main menu
+      await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot())
+      await sim.compareSnapshotsAndApprove('.', `${m.prefix.toLowerCase()}-show_address_expert`)
+
+      const resp = await respRequest
+
+      expect(resp.address).toEqual(EXPECTED_ADDRESS)
+      expect(resp.pubKey).toEqual(EXPECTED_PK)
     } finally {
       await sim.close()
     }
