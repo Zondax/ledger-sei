@@ -39,7 +39,9 @@ zxerr_t eth_addr_getItem(int8_t displayIdx, char *outKey, uint16_t outKeyLen, ch
     char buffer[300] = {0};
     uint8_t *addr = G_io_apdu_buffer + VIEW_ADDRESS_OFFSET_ETH;
 
-    MEMCPY(buffer, addr, ETH_ADDR_LEN * 2);
+    // Add "0x" prefix to the address
+    snprintf(buffer, sizeof(buffer), "0x");
+    MEMCPY(buffer + 2, addr, ETH_ADDR_LEN * 2);
 
     switch (displayIdx) {
         case 0:
