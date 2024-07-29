@@ -81,12 +81,12 @@ describe.each(models)('Transactions', function (m) {
       await sim.start({ ...defaultOptions, model: m.name })
       const app = new SeiApp(sim.getTransport())
 
-      const responseAddr = await app.getAddressAndPubKey(ETH_PATH)
+      const responseAddr = await app.getCosmosAddress(ETH_PATH)
       console.log(responseAddr)
       const pubKey = Buffer.from(responseAddr.pubKey, 'hex')
 
       // do not wait here.. we need to navigate
-      const signatureRequest = app.sign(ETH_PATH, data.blob)
+      const signatureRequest = app.signCosmos(ETH_PATH, data.blob)
 
       // Wait until we are not in the main menu
       await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot())
@@ -122,12 +122,12 @@ describe.each(models)('Transactions', function (m) {
       //Change to expert mode so we can skip fields
       await sim.toggleExpertMode()
 
-      const responseAddr = await app.getAddressAndPubKey(ETH_PATH)
+      const responseAddr = await app.getCosmosAddress(ETH_PATH)
       console.log(responseAddr)
       const pubKey = Buffer.from(responseAddr.pubKey, 'hex')
 
       // do not wait here.. we need to navigate
-      const signatureRequest = app.sign(ETH_PATH, data.blob)
+      const signatureRequest = app.signCosmos(ETH_PATH, data.blob)
 
       // Wait until we are not in the main menu
       await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot())

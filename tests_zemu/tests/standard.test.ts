@@ -14,7 +14,7 @@
  *  limitations under the License.
  ******************************************************************************* */
 
-import Zemu, { ButtonKind, zondaxMainmenuNavigation } from '@zondax/zemu'
+import Zemu, { ButtonKind, zondaxMainmenuNavigation, isTouchDevice } from '@zondax/zemu'
 import { SeiApp } from '@zondax/ledger-sei'
 import { ETH_PATH, EXPECTED_ADDRESS, EXPECTED_PK, defaultOptions, models } from './common'
 
@@ -68,7 +68,7 @@ describe('Standard', function () {
       await sim.start({ ...defaultOptions, model: m.name })
       const app = new SeiApp(sim.getTransport())
 
-      const resp = await app.getAddressAndPubKey(ETH_PATH, false)
+      const resp = await app.getCosmosAddress(ETH_PATH, false)
 
       console.log(resp)
 
@@ -85,12 +85,12 @@ describe('Standard', function () {
       await sim.start({
         ...defaultOptions,
         model: m.name,
-        approveKeyword: m.name === 'stax' ? 'QR' : '',
+        approveKeyword: isTouchDevice(m.name) ? 'Confirm' : '',
         approveAction: ButtonKind.ApproveTapButton,
       })
       const app = new SeiApp(sim.getTransport())
 
-      const respRequest = app.getAddressAndPubKey(ETH_PATH, true)
+      const respRequest = app.getCosmosAddress(ETH_PATH, true)
       //Wait until we are not in the main menu
       await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot())
       await sim.compareSnapshotsAndApprove('.', `${m.prefix.toLowerCase()}-show_address`)
@@ -110,7 +110,7 @@ describe('Standard', function () {
       await sim.start({
         ...defaultOptions,
         model: m.name,
-        approveKeyword: m.name === 'stax' ? 'QR' : '',
+        approveKeyword: isTouchDevice(m.name) ? 'Confirm' : '',
         approveAction: ButtonKind.ApproveTapButton,
       })
       const app = new SeiApp(sim.getTransport())
@@ -118,7 +118,7 @@ describe('Standard', function () {
       // Activate expert mode
       await sim.toggleExpertMode()
 
-      const respRequest = app.getAddressAndPubKey(ETH_PATH, true)
+      const respRequest = app.getCosmosAddress(ETH_PATH, true)
       //Wait until we are not in the main menu
       await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot())
       await sim.compareSnapshotsAndApprove('.', `${m.prefix.toLowerCase()}-show_address_expert`)
