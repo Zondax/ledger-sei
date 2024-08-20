@@ -51,6 +51,10 @@ typedef struct {
 } __attribute__((packed)) answer_eth_t;
 
 zxerr_t keccak_digest(const unsigned char *in, unsigned int inLen, unsigned char *out, unsigned int outLen) {
+    if (in == NULL || out == NULL || inLen == 0 || outLen == 0) {
+        return zxerr_invalid_crypto_settings;
+    }
+
 #if defined(LEDGER_SPECIFIC)
     // return actual size using value from signatureLength
     cx_sha3_t keccak;

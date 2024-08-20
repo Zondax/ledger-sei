@@ -29,6 +29,9 @@
 #include "parser_validate.h"
 
 parser_error_t parser_init_context(parser_context_t *ctx, const uint8_t *buffer, uint16_t bufferSize) {
+    if (ctx == NULL || buffer == NULL) {
+        return parser_unexpected_error;
+    }
     ctx->offset = 0;
     ctx->buffer = NULL;
     ctx->bufferLen = 0;
@@ -46,6 +49,9 @@ parser_error_t parser_init_context(parser_context_t *ctx, const uint8_t *buffer,
 }
 
 parser_error_t parser_parse(parser_context_t *ctx, const uint8_t *data, size_t dataLen, parser_tx_t *tx_obj) {
+    if (ctx == NULL || data == NULL || tx_obj == NULL) {
+        return parser_unexpected_error;
+    }
     CHECK_ERROR(parser_init_context(ctx, data, dataLen))
     return _read(ctx, tx_obj);
 }
@@ -71,6 +77,9 @@ parser_error_t parser_validate(const parser_context_t *ctx) {
 }
 
 parser_error_t parser_getNumItems(const parser_context_t *ctx, uint8_t *num_items) {
+    if (ctx == NULL || num_items == NULL) {
+        return parser_unexpected_error;
+    }
     UNUSED(ctx);
     *num_items = 1;
     if (*num_items == 0) {
@@ -82,6 +91,9 @@ parser_error_t parser_getNumItems(const parser_context_t *ctx, uint8_t *num_item
 
 parser_error_t parser_getItem(const parser_context_t *ctx, uint8_t displayIdx, char *outKey, uint16_t outKeyLen,
                               char *outVal, uint16_t outValLen, uint8_t pageIdx, uint8_t *pageCount) {
+    if (ctx == NULL || outKey == NULL || outVal == NULL || pageCount == NULL) {
+        return parser_unexpected_error;
+    }
     *pageCount = 0;
     char tmpKey[35] = {0};
 

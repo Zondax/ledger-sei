@@ -26,6 +26,9 @@
 #include "zxmacros.h"
 
 zxerr_t eth_addr_getNumItems(uint8_t *num_items) {
+    if (*num_items == 0) {
+        return zxerr_no_data;
+    }
     zemu_log_stack("eth_addr_getNumItems");
     *num_items = 1;
     if (app_mode_expert()) {
@@ -36,6 +39,9 @@ zxerr_t eth_addr_getNumItems(uint8_t *num_items) {
 
 zxerr_t eth_addr_getItem(int8_t displayIdx, char *outKey, uint16_t outKeyLen, char *outVal, uint16_t outValLen,
                          uint8_t pageIdx, uint8_t *pageCount) {
+    if (outKey == NULL || outVal == NULL || pageCount == NULL) {
+        return zxerr_no_data;
+    }
     char buffer[300] = {0};
     uint8_t *addr = G_io_apdu_buffer + VIEW_ADDRESS_OFFSET_ETH;
 
