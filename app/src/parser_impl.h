@@ -43,6 +43,22 @@ extern bool extraDepthLevel;
     parser_tx_obj.query.out_key_len = (_KEY_LEN);                                 \
     parser_tx_obj.query.out_val_len = (_VAL_LEN);
 
+#define CLEAN_QUERY()                    \
+    parser_tx_obj.query.out_key = NULL;  \
+    parser_tx_obj.query.out_val = NULL;  \
+    parser_tx_obj.query.out_key_len = 0; \
+    parser_tx_obj.query.out_val_len = 0;
+
+#define CHECK_ERROR_CLEAN_QUERY(__CALL) \
+    {                                   \
+        parser_error_t __err = __CALL;  \
+        CHECK_APP_CANARY()              \
+        if (__err != parser_ok) {       \
+            CLEAN_QUERY()               \
+            return __err;               \
+        }                               \
+    }
+
 typedef struct {
     const uint8_t *buffer;
     uint16_t bufferLen;

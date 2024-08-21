@@ -56,7 +56,8 @@ parser_error_t parser_is_expert_mode_or_not_default_chainid(bool *expert_or_defa
 
 const char *get_required_root_item(root_item_e i);
 
-parser_error_t parser_display_query(uint16_t displayIdx, char *outKey, uint16_t outKeyLen, uint16_t *ret_value_token_index);
+parser_error_t parser_display_query(uint16_t displayIdx, char *outKey, uint16_t outKeyLen, char *outVal, uint16_t outValLen,
+                                    uint16_t *ret_value_token_index);
 
 parser_error_t parser_display_numItems(uint8_t *num_items);
 

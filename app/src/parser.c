@@ -96,6 +96,7 @@ parser_error_t parser_getItem(const parser_context_t *ctx, uint8_t displayIdx, c
     }
     *pageCount = 0;
     char tmpKey[35] = {0};
+    char tmpVal[2] = {0};
 
     MEMZERO(outKey, outKeyLen);
     MEMZERO(outVal, outValLen);
@@ -113,22 +114,23 @@ parser_error_t parser_getItem(const parser_context_t *ctx, uint8_t displayIdx, c
     }
 
     uint16_t ret_value_token_index = 0;
-    CHECK_ERROR(parser_display_query(displayIdx, tmpKey, sizeof(tmpKey), &ret_value_token_index))
+    CHECK_ERROR_CLEAN_QUERY(
+        parser_display_query(displayIdx, tmpKey, sizeof(tmpKey), tmpVal, sizeof(tmpVal), &ret_value_token_index))
     CHECK_APP_CANARY()
     snprintf(outKey, outKeyLen, "%s", tmpKey);
 
     if (parser_isAmount(tmpKey)) {
-        CHECK_ERROR(parser_formatAmount(ret_value_token_index, outVal, outValLen, pageIdx, pageCount))
+        CHECK_ERROR_CLEAN_QUERY(parser_formatAmount(ret_value_token_index, outVal, outValLen, pageIdx, pageCount))
     } else {
-        CHECK_ERROR(parser_getToken(ret_value_token_index, outVal, outValLen, pageIdx, pageCount))
+        CHECK_ERROR_CLEAN_QUERY(parser_getToken(ret_value_token_index, outVal, outValLen, pageIdx, pageCount))
     }
     CHECK_APP_CANARY()
 
-    CHECK_ERROR(parser_display_make_friendly())
+    CHECK_ERROR_CLEAN_QUERY(parser_display_make_friendly())
     CHECK_APP_CANARY()
 
     snprintf(outKey, outKeyLen, "%s", tmpKey);
     CHECK_APP_CANARY()
-
+    CLEAN_QUERY()
     return parser_ok;
 }
