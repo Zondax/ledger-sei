@@ -79,9 +79,10 @@ __Z_INLINE parser_error_t calculate_is_default_chainid() {
     parser_tx_obj.query._item_index_current = 0;
 
     uint16_t ret_value_token_index = 0;
-    CHECK_ERROR(parser_traverse_find(display_cache.root_item_start_token_idx[root_item_chain_id], &ret_value_token_index))
+    CHECK_ERROR_CLEAN_QUERY(
+        parser_traverse_find(display_cache.root_item_start_token_idx[root_item_chain_id], &ret_value_token_index))
 
-    CHECK_ERROR(parser_getToken(ret_value_token_index, outVal, sizeof(outVal), 0, &pageCount))
+    CHECK_ERROR_CLEAN_QUERY(parser_getToken(ret_value_token_index, outVal, sizeof(outVal), 0, &pageCount))
 
     zemu_log_stack(outVal);
     zemu_log_stack(COIN_DEFAULT_CHAINID);
@@ -90,14 +91,16 @@ __Z_INLINE parser_error_t calculate_is_default_chainid() {
         // If we don't match the default chainid, switch to expert mode
         display_cache.is_default_chain = true;
     } else if ((outVal[0] == 0x30 || outVal[0] == 0x31) && strlen(outVal) == 1) {
+        CLEAN_QUERY();
         return parser_unexpected_chain;
     }
 
+    CLEAN_QUERY();
     return parser_ok;
 }
 
 __Z_INLINE bool address_matches_own(char *addr) {
-    if (parser_tx_obj.own_addr == NULL) {
+    if (parser_tx_obj.own_addr == NULL || addr == NULL) {
         return false;
     }
     if (strcmp(parser_tx_obj.own_addr, addr) != 0) {
@@ -165,8 +168,8 @@ parser_error_t parser_indexRootFields() {
             }
 
             uint8_t pageCount;
-            CHECK_ERROR(parser_getToken(ret_value_token_index, parser_tx_obj.query.out_val, parser_tx_obj.query.out_val_len,
-                                        0, &pageCount))
+            CHECK_ERROR_CLEAN_QUERY(parser_getToken(ret_value_token_index, parser_tx_obj.query.out_val,
+                                                    parser_tx_obj.query.out_val_len, 0, &pageCount))
 
             switch (root_item_idx) {
                 case root_item_memo: {
@@ -186,6 +189,7 @@ parser_error_t parser_indexRootFields() {
                         // First message, initialize expected type
                         if (parser_tx_obj.filter_msg_type_count == 0) {
                             if (strlen(tmp_val) >= sizeof(reference_msg_type)) {
+                                CLEAN_QUERY()
                                 return parser_unexpected_type;
                             }
 
@@ -230,6 +234,7 @@ parser_error_t parser_indexRootFields() {
         }
 
         if (err != parser_query_no_results && err != parser_no_data) {
+            CLEAN_QUERY()
             return err;
         }
 
@@ -238,11 +243,11 @@ parser_error_t parser_indexRootFields() {
 
     parser_tx_obj.flags.cache_valid = 1;
 
-    CHECK_ERROR(calculate_is_default_chainid())
+    CHECK_ERROR_CLEAN_QUERY(calculate_is_default_chainid())
 
     // turn off grouping if we are not in expert mode
     bool is_expert_or_default = false;
-    CHECK_ERROR(parser_is_expert_mode_or_not_default_chainid(&is_expert_or_default))
+    CHECK_ERROR_CLEAN_QUERY(parser_is_expert_mode_or_not_default_chainid(&is_expert_or_default))
     if (is_expert_or_default) {
         parser_tx_obj.flags.msg_from_grouping = 0;
     }
@@ -252,7 +257,7 @@ parser_error_t parser_indexRootFields() {
     if (address_matches_own(reference_msg_from)) {
         parser_tx_obj.flags.msg_from_grouping_hide_all = 1;
     }
-
+    CLEAN_QUERY()
     return parser_ok;
 }
 
@@ -334,6 +339,10 @@ __Z_INLINE parser_error_t get_subitem_count(root_item_e root_item, uint8_t *num_
 }
 
 __Z_INLINE parser_error_t retrieve_tree_indexes(uint8_t display_index, root_item_e *root_item, uint8_t *subitem_index) {
+    if (root_item == NULL || subitem_index == NULL) {
+        return parser_unexpected_value;
+    }
+
     // Find root index | display_index idx -> item_index
     // consume indexed subpages until we get the item index in the subpage
     *root_item = 0;
@@ -372,6 +381,9 @@ __Z_INLINE parser_error_t retrieve_tree_indexes(uint8_t display_index, root_item
 }
 
 parser_error_t parser_display_numItems(uint8_t *num_items) {
+    if (num_items == NULL) {
+        return parser_unexpected_value;
+    }
     *num_items = 0;
     CHECK_ERROR(parser_indexRootFields())
 
@@ -386,7 +398,11 @@ parser_error_t parser_display_numItems(uint8_t *num_items) {
 }
 
 // This function assumes that the tx_ctx has been set properly
-parser_error_t parser_display_query(uint16_t displayIdx, char *outKey, uint16_t outKeyLen, uint16_t *ret_value_token_index) {
+parser_error_t parser_display_query(uint16_t displayIdx, char *outKey, uint16_t outKeyLen, char *outVal, uint16_t outValLen,
+                                    uint16_t *ret_value_token_index) {
+    if (outKey == NULL || ret_value_token_index == NULL) {
+        return parser_unexpected_value;
+    }
     CHECK_ERROR(parser_indexRootFields())
 
     uint8_t num_items;
@@ -401,19 +417,18 @@ parser_error_t parser_display_query(uint16_t displayIdx, char *outKey, uint16_t 
     CHECK_ERROR(retrieve_tree_indexes(displayIdx, &root_index, &subitem_index))
 
     // Prepare query
-    static char tmp_val[2];
-    INIT_QUERY_CONTEXT(outKey, outKeyLen, tmp_val, sizeof(tmp_val), 0, get_root_max_level(root_index))
+    INIT_QUERY_CONTEXT(outKey, outKeyLen, outVal, sizeof(outValLen), 0, get_root_max_level(root_index))
     parser_tx_obj.query.item_index = subitem_index;
     parser_tx_obj.query._item_index_current = 0;
 
     strncpy_s(outKey, get_required_root_item(root_index), outKeyLen);
 
     if (!display_cache.root_item_start_token_valid[root_index]) {
+        CLEAN_QUERY()
         return parser_no_data;
     }
 
-    CHECK_ERROR(parser_traverse_find(display_cache.root_item_start_token_idx[root_index], ret_value_token_index))
-
+    CHECK_ERROR_CLEAN_QUERY(parser_traverse_find(display_cache.root_item_start_token_idx[root_index], ret_value_token_index))
     return parser_ok;
 }
 
@@ -448,7 +463,9 @@ static const key_subst_t key_substitutions[] = {
 };
 
 parser_error_t parser_display_make_friendly() {
-    CHECK_ERROR(parser_indexRootFields())
+    if (!parser_tx_obj.flags.cache_valid) {
+        return parser_unexpected_value;
+    }
 
     // post process keys
     for (size_t i = 0; i < array_length(key_substitutions); i++) {
@@ -465,7 +482,6 @@ parser_error_t parser_display_make_friendly() {
             break;
         }
     }
-
     return parser_ok;
 }
 
@@ -494,6 +510,9 @@ __Z_INLINE bool parser_areEqual(uint16_t tokenIdx, const char *expected) {
 }
 
 bool parser_isAmount(char *key) {
+    if (key == NULL) {
+        return false;
+    }
     if (strcmp(key, "fee/amount") == 0) {
         return true;
     }
@@ -518,6 +537,9 @@ bool parser_isAmount(char *key) {
 }
 
 __Z_INLINE parser_error_t is_default_denom_base(const char *denom, uint8_t denom_len, bool *is_default) {
+    if (denom == NULL || denom_len == 0) {
+        return parser_unexpected_value;
+    }
     if (is_default == NULL) {
         return parser_unexpected_value;
     }
@@ -564,6 +586,9 @@ void remove_fraction(char *s) {
 
 __Z_INLINE parser_error_t parser_formatAmountItem(uint16_t amountToken, char *outVal, uint16_t outValLen, uint8_t pageIdx,
                                                   uint8_t *pageCount) {
+    if (outVal == NULL || outValLen == 0 || pageCount == NULL) {
+        return parser_unexpected_error;
+    }
     *pageCount = 0;
 
     uint16_t numElements;
@@ -648,6 +673,9 @@ __Z_INLINE parser_error_t parser_formatAmountItem(uint16_t amountToken, char *ou
 
 parser_error_t parser_formatAmount(uint16_t amountToken, char *outVal, uint16_t outValLen, uint8_t pageIdx,
                                    uint8_t *pageCount) {
+    if (outVal == NULL || pageCount == NULL) {
+        return parser_unexpected_error;
+    }
     *pageCount = 0;
     if (parser_tx_obj.json.tokens[amountToken].type != JSMN_ARRAY) {
         return parser_formatAmountItem(amountToken, outVal, outValLen, pageIdx, pageCount);

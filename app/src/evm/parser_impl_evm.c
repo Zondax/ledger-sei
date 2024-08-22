@@ -176,6 +176,10 @@ static parser_error_t readTxnType(parser_context_t *ctx, eth_tx_type_e *type) {
 }
 
 parser_error_t _readEth(parser_context_t *ctx, eth_tx_t *tx_obj) {
+    if (ctx == NULL || tx_obj == NULL) {
+        return parser_unexpected_value;
+    }
+
     MEMZERO(&eth_tx_obj, sizeof(eth_tx_obj));
     CHECK_ERROR(readTxnType(ctx, &tx_obj->tx_type))
     // We expect a list with all the fields from the transaction
@@ -219,6 +223,9 @@ parser_error_t _validateTxEth() {
 
 static parser_error_t printEthHash(const parser_context_t *ctx, char *outKey, uint16_t outKeyLen, char *outVal,
                                    uint16_t outValLen, uint8_t pageIdx, uint8_t *pageCount) {
+    if (ctx == NULL || outKey == NULL || outVal == NULL || pageCount == NULL) {
+        return parser_unexpected_error;
+    }
     // we need to get keccak hash of the transaction data
     uint8_t hash[32] = {0};
 #if defined(TARGET_NANOS) || defined(TARGET_NANOS2) || defined(TARGET_NANOX) || defined(TARGET_STAX) || defined(TARGET_FLEX)

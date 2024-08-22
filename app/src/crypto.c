@@ -41,6 +41,10 @@ zxerr_t crypto_sha256(const uint8_t *input, uint16_t inputLen, uint8_t *output, 
 }
 
 zxerr_t ripemd160_32(uint8_t *out, uint8_t *in) {
+    if (out == NULL || in == NULL) {
+        return zxerr_invalid_crypto_settings;
+    }
+
     cx_ripemd160_t rip160 = {0};
     cx_ripemd160_init(&rip160);
     CHECK_CX_OK(cx_hash_no_throw(&rip160.header, CX_LAST, in, CX_SHA256_SIZE, out, CX_RIPEMD160_SIZE));

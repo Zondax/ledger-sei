@@ -22,6 +22,9 @@
 #define EQUALS(_P, _Q, _LEN) (MEMCMP((const void *)PIC(_P), (const void *)PIC(_Q), (_LEN)) == 0)
 
 parser_error_t json_parse(parsed_json_t *parsed_json, const char *buffer, uint16_t bufferLen) {
+    if (parsed_json == NULL || buffer == NULL || bufferLen == 0) {
+        return parser_unexpected_error;
+    }
     jsmn_parser parser;
     jsmn_init(&parser);
 
@@ -71,6 +74,9 @@ parser_error_t json_parse(parsed_json_t *parsed_json, const char *buffer, uint16
 }
 
 parser_error_t array_get_element_count(const parsed_json_t *json, uint16_t array_token_index, uint16_t *number_elements) {
+    if (json == NULL || number_elements == NULL) {
+        return parser_unexpected_error;
+    }
     *number_elements = 0;
     if (array_token_index < 0 || array_token_index > json->numberOfTokens) {
         return parser_no_data;
@@ -100,6 +106,9 @@ parser_error_t array_get_element_count(const parsed_json_t *json, uint16_t array
 
 parser_error_t array_get_nth_element(const parsed_json_t *json, uint16_t array_token_index, uint16_t element_index,
                                      uint16_t *token_index) {
+    if (json == NULL || token_index == NULL) {
+        return parser_unexpected_error;
+    }
     if (array_token_index < 0 || array_token_index > json->numberOfTokens) {
         return parser_no_data;
     }
@@ -132,6 +141,9 @@ parser_error_t array_get_nth_element(const parsed_json_t *json, uint16_t array_t
 }
 
 parser_error_t object_get_element_count(const parsed_json_t *json, uint16_t object_token_index, uint16_t *element_count) {
+    if (json == NULL || element_count == NULL) {
+        return parser_unexpected_error;
+    }
     *element_count = 0;
     if (object_token_index < 0 || object_token_index > json->numberOfTokens) {
         return parser_no_data;
@@ -162,6 +174,10 @@ parser_error_t object_get_element_count(const parsed_json_t *json, uint16_t obje
 
 parser_error_t object_get_nth_key(const parsed_json_t *json, uint16_t object_token_index, uint16_t object_element_index,
                                   uint16_t *token_index) {
+    if (json == NULL || token_index == NULL) {
+        return parser_unexpected_error;
+    }
+
     *token_index = object_token_index;
     if (object_token_index < 0 || object_token_index > json->numberOfTokens) {
         return parser_no_data;
@@ -196,6 +212,9 @@ parser_error_t object_get_nth_key(const parsed_json_t *json, uint16_t object_tok
 
 parser_error_t object_get_nth_value(const parsed_json_t *json, uint16_t object_token_index, uint16_t object_element_index,
                                     uint16_t *key_index) {
+    if (json == NULL || key_index == NULL) {
+        return parser_unexpected_error;
+    }
     if (object_token_index < 0 || object_token_index > json->numberOfTokens) {
         return parser_no_data;
     }
@@ -208,6 +227,9 @@ parser_error_t object_get_nth_value(const parsed_json_t *json, uint16_t object_t
 
 parser_error_t object_get_value(const parsed_json_t *json, uint16_t object_token_index, const char *key_name,
                                 uint16_t *token_index) {
+    if (json == NULL || key_name == NULL || token_index == NULL) {
+        return parser_unexpected_error;
+    }
     if (object_token_index < 0 || object_token_index > json->numberOfTokens) {
         return parser_no_data;
     }
