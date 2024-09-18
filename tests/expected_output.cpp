@@ -119,7 +119,7 @@ std::vector<std::string> EVMGenerateExpectedUIOutput(const Json::Value &json, bo
     addTo(answer, "{} | Data : {}", idx, data);
 
     idx++;
-    auto hash = FormatEthAddress("Eth-Hash", idx, txhash);
+    auto hash = FormatEthAddress("EVM Hash", idx, txhash);
     answer.insert(answer.end(), hash.begin(), hash.end());
 
     return answer;
