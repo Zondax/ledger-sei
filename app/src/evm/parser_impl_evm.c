@@ -236,7 +236,7 @@ static parser_error_t printEthHash(const parser_context_t *ctx, char *outKey, ui
     char hex[65] = {0};
     array_to_hexstr(hex, 65, hash, 32);
 
-    snprintf(outKey, outKeyLen, "Eth-Hash");
+    snprintf(outKey, outKeyLen, "EVM Hash");
 
     pageString(outVal, outValLen, hex, pageIdx, pageCount);
 
