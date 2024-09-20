@@ -11,9 +11,9 @@ _Please visit our website at [zondax.ch](https://www.zondax.ch)_
 
 ---
 
-This project contains the Sei app for Ledger Nano S Nano S+ and X.
+This project contains the Sei app for Ledger Nano S+ and X, Stax and Flex.
 
-- Ledger Nano S/S+/X Sei app
+- Ledger Nano S+/X/Stax/Flex Sei app
 - Specs / Documentation
 - C++ unit tests
 - Zemu tests
