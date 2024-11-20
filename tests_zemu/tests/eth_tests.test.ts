@@ -137,8 +137,8 @@ describe.each(models)('ETHT', function (m) {
       const app = new SeiApp(sim.getTransport())
       const msg = data.op
 
-      // Put the app in expert mode
-      await sim.toggleExpertMode()
+      // Put the app in blind signing mode
+      await sim.toggleBlindSigning()
 
       // eth pubkey used for ETH_PATH: "m/44'/60'/0'/0'/5"
       // to verify signature
@@ -149,7 +149,7 @@ describe.each(models)('ETHT', function (m) {
       // Wait until we are not in the main menu
       await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot())
 
-      await sim.compareSnapshotsAndApprove('.', `${m.prefix.toLowerCase()}-eth-${data.name}`)
+      await sim.compareSnapshotsAndApprove('.', `${m.prefix.toLowerCase()}-eth-${data.name}`, true, 0, 15000, true)
 
       let resp = await signatureRequest
       console.log(resp)
