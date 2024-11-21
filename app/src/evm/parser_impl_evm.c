@@ -457,7 +457,7 @@ parser_error_t _getNumItemsEth(uint8_t *numItems) {
         return parser_ok;
     }
 
-     if (eth_tx_obj.tx_type == legacy || eth_tx_obj.tx_type == eip2930) {
+    if (eth_tx_obj.tx_type == legacy || eth_tx_obj.tx_type == eip2930) {
         *numItems = 6;
     } else {
         *numItems = 7;
