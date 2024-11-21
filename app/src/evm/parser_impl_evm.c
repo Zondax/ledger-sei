@@ -252,7 +252,7 @@ static parser_error_t printERC20Transfer(const parser_context_t *ctx, uint8_t di
     MEMZERO(outVal, outValLen);
     *pageCount = 1;
 
-    if (eth_tx_obj.tx_type == eip1559 && displayIdx >= 7) {
+    if (eth_tx_obj.tx_type == eip1559 && displayIdx >= 8) {
         displayIdx++;
     }
 
