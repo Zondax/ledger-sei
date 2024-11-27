@@ -26,7 +26,7 @@
 #if defined(LEDGER_SPECIFIC)
 #include "cx.h"
 #else
-#define CX_SHA256_SIZE    32
+#define CX_SHA256_SIZE 32
 #define CX_RIPEMD160_SIZE 20
 #endif
 
