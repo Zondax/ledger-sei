@@ -34,31 +34,6 @@ static const char SIGN_MAGIC[] =
     "\x19"
     "Ethereum Signed Message:\n";
 
-static void eip191_uint32_to_str(uint32_t num, char *str) {
-    char temp[12];
-    int i = 0;
-
-    // Handle 0 explicitly
-    if (num == 0) {
-        str[i++] = '0';
-        str[i] = '\0';
-        return;
-    }
-
-    // Convert each digit to a character
-    while (num > 0) {
-        temp[i++] = '0' + (num % 10);
-        num /= 10;
-    }
-
-    // Reverse the string
-    int j = 0;
-    while (i > 0) {
-        str[j++] = temp[--i];
-    }
-    str[j] = '\0';
-}
-
 zxerr_t eip191_msg_getNumItems(uint8_t *num_items) {
     zemu_log_stack("msg_getNumItems");
     *num_items = 2;
@@ -132,7 +107,7 @@ zxerr_t eip191_hash_message(const uint8_t *message, uint16_t messageLen, uint8_t
 
     uint32_t msg_len = U4BE(message, 0);
     char len_str[12] = {0};
-    eip191_uint32_to_str(msg_len, len_str);
+    uint32_to_str(len_str, sizeof(len_str), msg_len);
     CHECK_CX_OK(cx_hash_no_throw((cx_hash_t *)&sha3, 0, (uint8_t *)len_str, strlen(len_str), NULL, 0));
 
     CHECK_CX_OK(
