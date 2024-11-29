@@ -59,6 +59,7 @@ static parser_error_t readChainID(parser_context_t *ctx, rlp_t *chainId) {
     // Check allowed values for chain id
     for (uint8_t i = 0; i < SUPPORTED_NETWORKS_EVM_LEN; i++) {
         if (tmpChainId == supported_networks_evm[i]) {
+            chainId->chain_id_decoded = tmpChainId;
             return parser_ok;
         }
     }
@@ -278,7 +279,16 @@ static parser_error_t printERC20Transfer(const parser_context_t *ctx, uint8_t di
 
         case 2:
             snprintf(outKey, outKeyLen, "Coin asset");
-            snprintf(outVal, outValLen, "Sei");
+            switch (eth_tx_obj.chainId.chain_id_decoded) {
+                case SEI_MAINNET_CHAINID:
+                    snprintf(outVal, outValLen, "Sei Mainnet");
+                    break;
+                case SEI_DEVNET_CHAINID:
+                    snprintf(outVal, outValLen, "Sei Devnet");
+                    break;
+                default:
+                    return parser_invalid_chain_id;
+            }
             break;
 
         case 3:
