@@ -214,7 +214,9 @@ parser_error_t _readEth(parser_context_t *ctx, eth_tx_t *tx_obj) {
 }
 
 parser_error_t _validateTxEth() {
-    if (!validateERC20(&eth_tx_obj) && !app_mode_blindsign()) {
+    if (eth_tx_obj.tx.data.rlpLen == 0 || validateERC20(&eth_tx_obj)) {
+        app_mode_skip_blindsign_ui();
+    } else if (!app_mode_blindsign()) {
         return parser_blindsign_mode_required;
     }
 
@@ -433,11 +435,9 @@ parser_error_t _getItemEth(const parser_context_t *ctx, uint8_t displayIdx, char
     // At the moment, clear signing is available only for ERC20 transfer
     if (eth_tx_obj.is_erc20_transfer) {
         return printERC20Transfer(ctx, displayIdx, outKey, outKeyLen, outVal, outValLen, pageIdx, pageCount);
-    } else if (app_mode_blindsign()) {
-        return printGeneric(ctx, displayIdx, outKey, outKeyLen, outVal, outValLen, pageIdx, pageCount);
     }
 
-    return parser_blindsign_mode_required;
+    return printGeneric(ctx, displayIdx, outKey, outKeyLen, outVal, outValLen, pageIdx, pageCount);
 }
 
 // returns the number of items to display on the screen.
