@@ -48,12 +48,12 @@ parser_error_t parser_init_context(parser_context_t *ctx, const uint8_t *buffer,
     return parser_ok;
 }
 
-parser_error_t parser_parse(parser_context_t *ctx, const uint8_t *data, size_t dataLen, parser_tx_t *tx_obj) {
-    if (ctx == NULL || data == NULL || tx_obj == NULL) {
+parser_error_t parser_parse(parser_context_t *ctx, const uint8_t *data, size_t dataLen) {
+    if (ctx == NULL || data == NULL) {
         return parser_unexpected_error;
     }
     CHECK_ERROR(parser_init_context(ctx, data, dataLen))
-    return _read(ctx, tx_obj);
+    return _read(ctx);
 }
 
 parser_error_t parser_validate(const parser_context_t *ctx) {
