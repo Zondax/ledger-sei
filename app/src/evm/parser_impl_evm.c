@@ -35,6 +35,9 @@ eth_tx_t eth_tx_obj;
 #define SEI_MAINNET_CHAINID 1329
 #define SEI_DEVNET_CHAINID 713715
 
+#define ETHEREUM_RECOVERY_OFFSET 27
+#define EIP155_V_BASE 35
+
 const uint64_t supported_networks_evm[2] = {
     SEI_MAINNET_CHAINID,
     SEI_DEVNET_CHAINID,
@@ -477,14 +480,20 @@ parser_error_t _getNumItemsEth(uint8_t *numItems) {
     return parser_ok;
 }
 
-parser_error_t _computeV(parser_context_t *ctx, eth_tx_t *tx_obj, unsigned int info, uint8_t *v) {
+// https://github.com/LedgerHQ/ledger-live/commit/b93a421866519b80fdd8a029caea97323eceae93
+parser_error_t _computeV(parser_context_t *ctx, eth_tx_t *tx_obj, unsigned int info, uint8_t *v, bool is_personal_message) {
     if (ctx == NULL || tx_obj == NULL || v == NULL) {
         return parser_unexpected_error;
     }
 
-    // https://github.com/LedgerHQ/ledger-live/commit/b93a421866519b80fdd8a029caea97323eceae93
-    uint8_t type = eth_tx_obj.tx_type;
     uint8_t parity = info & CX_ECCINFO_PARITY_ODD;
+
+    if (is_personal_message) {
+        *v = ETHEREUM_RECOVERY_OFFSET + parity;
+        return parser_ok;
+    }
+
+    uint8_t type = eth_tx_obj.tx_type;
 
     if (type == eip2930 || type == eip1559) {
         *v = parity;
@@ -492,7 +501,7 @@ parser_error_t _computeV(parser_context_t *ctx, eth_tx_t *tx_obj, unsigned int i
     }
 
     uint32_t chainId = (uint32_t)eth_tx_obj.chainId.chain_id_decoded;
-    *v = (uint8_t)saturating_add_u32(35 + parity, chainId * 2);
+    *v = (uint8_t)saturating_add_u32(EIP155_V_BASE + parity, chainId * 2);
 
     return parser_ok;
 }
