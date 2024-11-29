@@ -79,7 +79,7 @@ __Z_INLINE void app_sign_eip191() {
     MEMZERO(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE);
     zxerr_t err = eip191_hash_message(message, messageLength, hash);
     if (err == zxerr_ok) {
-        err = crypto_sign_eth(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 3, hash, 32, &replyLen, false);
+        err = crypto_sign_eth(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 3, hash, 32, &replyLen, true);
     }
 
     if (err != zxerr_ok || replyLen == 0) {
@@ -97,7 +97,7 @@ __Z_INLINE void app_sign_eth() {
     uint16_t replyLen = 0;
 
     MEMZERO(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE);
-    zxerr_t err = crypto_sign_eth(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 3, message, messageLength, &replyLen, true);
+    zxerr_t err = crypto_sign_eth(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 3, message, messageLength, &replyLen, false);
 
     if (err != zxerr_ok || replyLen == 0) {
         set_code(G_io_apdu_buffer, 0, APDU_CODE_SIGN_VERIFY_ERROR);
