@@ -297,6 +297,8 @@ void handleSignEip191(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t 
 
     CHECK_APP_CANARY()
     if (!eip191_msg_parse()) {
+        *flags |= IO_ASYNCH_REPLY;
+        view_blindsign_error_show();
         THROW(APDU_CODE_DATA_INVALID);
     }
     CHECK_APP_CANARY()

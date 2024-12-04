@@ -87,8 +87,18 @@ zxerr_t eip191_msg_getItem(int8_t displayIdx, char *outKey, uint16_t outKeyLen, 
 }
 
 bool eip191_msg_parse() {
-    if (!app_mode_expert()) {
+    const uint8_t *message = tx_get_buffer() + sizeof(uint32_t);
+    const uint16_t messageLength = tx_get_buffer_length() - sizeof(uint32_t);
+    uint16_t npc = 0;  // Non Printable Chars Counter
+    for (uint16_t i = 0; i < messageLength; i++) {
+        npc += IS_PRINTABLE(message[i]) ? 0 /* Printable Char */ : 1 /* Non Printable Char */;
+    }
+    // msg in hex in case >= than 40% is non printable
+    // or first char is not printable.
+    if (messageLength > 0 && (npc * 100) / messageLength >= 40 && !app_mode_blindsign()) {
         return false;
+    } else if (messageLength > 0 && (npc * 100) / messageLength < 40) {
+        app_mode_skip_blindsign_ui();
     }
 
     return true;
