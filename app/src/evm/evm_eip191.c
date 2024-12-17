@@ -50,6 +50,10 @@ zxerr_t eip191_msg_getItem(int8_t displayIdx, char *outKey, uint16_t outKeyLen, 
     snprintf(outVal, outValLen, " ");
     *pageCount = 1;
 
+    if (tx_get_buffer_length() < sizeof(uint32_t) || tx_get_buffer() == NULL) {
+        return zxerr_unknown;
+    }
+
     const uint8_t *message = tx_get_buffer() + sizeof(uint32_t);
     const uint16_t messageLength = tx_get_buffer_length() - sizeof(uint32_t);
 

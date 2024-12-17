@@ -88,10 +88,10 @@ bool process_chunk_eip191(__Z_UNUSED volatile uint32_t *tx, uint32_t rx) {
             uint32_t path_len = sizeof(uint32_t) * hdPathEth_len;
 
             // plus the first offset data containing the path len
-            data += path_len + 1;
             if (len < path_len) {
                 THROW(APDU_CODE_WRONG_LENGTH);
             }
+            data += path_len + 1;
             len -= path_len + 1;
 
             // now process the chunk
