@@ -74,6 +74,9 @@ APP_LOAD_PARAMS =  --curve secp256k1 --delete $(COMMON_LOAD_PARAMS) --path $(APP
 APP_SOURCE_PATH += $(MY_DIR)/../deps/jsmn/src
 INCLUDES_PATH += $(CURDIR)/src/common
 
+ENABLE_NBGL_QRCODE ?= 1
+
+
 include $(BOLOS_SDK)/Makefile.target
 
 include $(CURDIR)/../deps/ledger-zxlib/makefiles/Makefile.devices
