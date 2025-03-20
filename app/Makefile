@@ -75,7 +75,7 @@ APP_SOURCE_PATH += $(MY_DIR)/../deps/jsmn/src
 INCLUDES_PATH += $(CURDIR)/src/common
 
 ENABLE_NBGL_QRCODE ?= 1
-
+ENABLE_BLUETOOTH = 1
 
 include $(BOLOS_SDK)/Makefile.target
 
