@@ -65,9 +65,9 @@ zxerr_t eip191_msg_getItem(int8_t displayIdx, char *outKey, uint16_t outKeyLen, 
         }
         case 1: {
             snprintf(outKey, outKeyLen, "Msg hex");
-            uint8_t is_printable = 1; 
+            uint8_t is_printable = 1;
 
-            // Check if all characters are printable    
+            // Check if all characters are printable
             for (uint16_t i = 0; i < messageLength; i++) {
                 if (!IS_PRINTABLE(message[i])) {
                     is_printable = 0;
