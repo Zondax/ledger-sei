@@ -22,14 +22,8 @@ endif
 
 MY_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
-include $(CURDIR)/../deps/ledger-zxlib/makefiles/Makefile.installer_script
-
-include $(BOLOS_SDK)/Makefile.defines
-
 # Set the default value for PRODUCTION_BUILD to 0 if not already defined
-PRODUCTION_BUILD ?= 0
-
-$(info ************ TARGET_NAME  = [$(TARGET_NAME)])
+PRODUCTION_BUILD ?= 1
 
 # Display whether this is a production build or for internal use
 ifeq ($(PRODUCTION_BUILD), 1)
@@ -38,9 +32,15 @@ else
     $(info ************ PRODUCTION_BUILD  = [INTERNAL USE])
 endif
 
-DEFINES += APP_BLINDSIGN_MODE_ENABLED
+# Display whether swap functionality is enabled or not
+ifeq ($(ENABLE_SWAP), 1)
+    $(info ************ HAVE_SWAP  = [ENABLED])
+else
+    $(info ************ HAVE_SWAP  = [DISABLED])
+endif
 
 # Add the PRODUCTION_BUILD definition to the compiler flags
+DEFINES += APP_BLINDSIGN_MODE_ENABLED
 DEFINES += PRODUCTION_BUILD=$(PRODUCTION_BUILD)
 
 include $(CURDIR)/../deps/ledger-zxlib/makefiles/Makefile.app_testing
@@ -48,6 +48,9 @@ include $(CURDIR)/../deps/ledger-zxlib/makefiles/Makefile.app_testing
 ifndef COIN
 COIN=SEI
 endif
+
+VARIANT_PARAM=COIN
+VARIANT_VALUES=$(COIN)
 
 include $(CURDIR)/Makefile.version
 
@@ -65,9 +68,24 @@ endef
 $(error "$(error_message)")
 endif
 
+$(info PATHS LIST = $(APPPATH))
+
 APP_LOAD_PARAMS =  --curve secp256k1 --delete $(COMMON_LOAD_PARAMS) --path $(APPPATH)
+APP_SOURCE_PATH += $(MY_DIR)/../deps/jsmn/src
+INCLUDES_PATH += $(CURDIR)/src/common
+
+ENABLE_NBGL_QRCODE ?= 1
+ENABLE_BLUETOOTH = 1
+
+include $(BOLOS_SDK)/Makefile.target
 
 include $(CURDIR)/../deps/ledger-zxlib/makefiles/Makefile.devices
+
+include $(CURDIR)/../deps/ledger-zxlib/makefiles/Makefile.platform
+
+CFLAGS += -Wvla
+
+include $(CURDIR)/../deps/ledger-zxlib/makefiles/Makefile.installer_script
 
 $(info TARGET_NAME  = [$(TARGET_NAME)])
 $(info ICONNAME  = [$(ICONNAME)])
@@ -76,9 +94,6 @@ ifndef ICONNAME
 $(error ICONNAME is not set)
 endif
 
-include $(CURDIR)/../deps/ledger-zxlib/makefiles/Makefile.platform
-APP_SOURCE_PATH += $(MY_DIR)/../deps/jsmn/src
-CFLAGS += -Wvla
 
 .PHONY: rust
 rust:
@@ -93,16 +108,9 @@ rust_clean:
 
 clean: rust_clean
 
-include $(CURDIR)/../deps/ledger-zxlib/makefiles/Makefile.side_loading
-
-# Import generic rules from the SDK
-include $(BOLOS_SDK)/Makefile.rules
 
 #add dependency on custom makefile filename
 dep/%.d: %.c Makefile
-
-listvariants:
-	@echo VARIANTS COIN SEI
 
 .PHONY: version
 version:
