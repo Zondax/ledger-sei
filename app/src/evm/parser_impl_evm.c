@@ -218,8 +218,10 @@ parser_error_t _readEth(parser_context_t *ctx, eth_tx_t *tx_obj) {
 }
 
 parser_error_t _validateTxEth() {
+    eth_tx_obj.is_blindsign = true;
     if (eth_tx_obj.tx.data.rlpLen == 0 || validateERC20(&eth_tx_obj)) {
         app_mode_skip_blindsign_ui();
+        eth_tx_obj.is_blindsign = false;
     } else if (!app_mode_blindsign()) {
         return parser_blindsign_mode_required;
     }
@@ -249,8 +251,9 @@ static parser_error_t printEthHash(const parser_context_t *ctx, char *outKey, ui
     return parser_ok;
 }
 
-static parser_error_t printERC20Transfer(const parser_context_t *ctx, uint8_t displayIdx, char *outKey, uint16_t outKeyLen,
-                                         char *outVal, uint16_t outValLen, uint8_t pageIdx, uint8_t *pageCount) {
+static parser_error_t printERC20Transfer(__Z_UNUSED const parser_context_t *ctx, uint8_t displayIdx, char *outKey,
+                                         uint16_t outKeyLen, char *outVal, uint16_t outValLen, uint8_t pageIdx,
+                                         uint8_t *pageCount) {
     if (outKey == NULL || outVal == NULL || pageCount == NULL) {
         return parser_unexpected_error;
     }
@@ -340,10 +343,6 @@ static parser_error_t printERC20Transfer(const parser_context_t *ctx, uint8_t di
             }
 
             pageString(outVal, outValLen, data_array, pageIdx, pageCount);
-            break;
-
-        case 11:
-            CHECK_ERROR(printEthHash(ctx, outKey, outKeyLen, outVal, outValLen, pageIdx, pageCount));
             break;
 
         default:
@@ -463,20 +462,26 @@ parser_error_t _getNumItemsEth(uint8_t *numItems) {
     // Verify that tx is ERC20
     if (validateERC20(&eth_tx_obj)) {
         if (eth_tx_obj.tx_type == legacy || eth_tx_obj.tx_type == eip2930) {
-            *numItems = 10;
+            *numItems = 9;
         } else {
-            *numItems = 11;
+            *numItems = 10;
         }
         return parser_ok;
     }
 
+    // Common items
     if (eth_tx_obj.tx_type == legacy || eth_tx_obj.tx_type == eip2930) {
         *numItems = 6;
     } else {
         *numItems = 7;
     }
 
+    // Check if the transaction is blindsigned if so show EVM hash
+    *numItems -= (eth_tx_obj.is_blindsign ? 0 : 1);
+
+    // Check if the transaction has data or to address to show
     *numItems += ((eth_tx_obj.tx.data.rlpLen != 0) ? 1 : 0) + ((eth_tx_obj.tx.to.rlpLen != 0) ? 1 : 0);
+
     return parser_ok;
 }
 
