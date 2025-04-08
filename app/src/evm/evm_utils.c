@@ -173,11 +173,12 @@ parser_error_t printBigIntFixedPoint(const uint8_t *number, uint16_t number_len,
         return parser_unexpected_value;
     }
 
-    if (z_str3join(overlapped.output, sizeof(overlapped.output), "SEI ", NULL) != zxerr_ok) {
+    number_inplace_trimming(overlapped.output, 1);
+
+    if (z_str3join(overlapped.output, sizeof(overlapped.output), NULL, SEI_TOKEN_SYMBOL) != zxerr_ok) {
         return parser_unexpected_buffer_end;
     }
 
-    number_inplace_trimming(overlapped.output, 1);
     pageString(outVal, outValLen, overlapped.output, pageIdx, pageCount);
     return parser_ok;
 }
