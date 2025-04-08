@@ -32,6 +32,8 @@ typedef enum RlpError {
     rlp_invalid_data,
 } rlp_error_t;
 
+#define SEI_TOKEN_SYMBOL " SEI"
+
 // Add two numbers returning UINT64_MAX if overflows
 uint64_t saturating_add(uint64_t a, uint64_t b);
 
