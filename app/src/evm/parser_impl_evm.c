@@ -266,7 +266,7 @@ static parser_error_t printERC20Transfer(__Z_UNUSED const parser_context_t *ctx,
     }
 
     if ((eth_tx_obj.tx_type == legacy || eth_tx_obj.tx_type == eip2930) && displayIdx >= 5) {
-        displayIdx += 2;
+        displayIdx += 3;
     }
 
     char data_array[40] = {0};
@@ -323,8 +323,8 @@ static parser_error_t printERC20Transfer(__Z_UNUSED const parser_context_t *ctx,
             break;
 
         case 8:
-            snprintf(outKey, outKeyLen, "Gas price");
-            CHECK_ERROR(printRLPNumber(&eth_tx_obj.tx.gasPrice, outVal, outValLen, pageIdx, pageCount));
+            snprintf(outKey, outKeyLen, "Max Fees");
+            CHECK_ERROR(printEVMMaxFees(&eth_tx_obj, outVal, outValLen, pageIdx, pageCount));
             break;
 
         case 9:
@@ -372,7 +372,7 @@ static parser_error_t printGeneric(const parser_context_t *ctx, uint8_t displayI
     }
 
     if ((eth_tx_obj.tx_type == legacy || eth_tx_obj.tx_type == eip2930) && displayIdx >= 3) {
-        displayIdx += 2;
+        displayIdx += 3;
     }
 
     switch (displayIdx) {
@@ -417,8 +417,8 @@ static parser_error_t printGeneric(const parser_context_t *ctx, uint8_t displayI
             break;
 
         case 6:
-            snprintf(outKey, outKeyLen, "Gas price");
-            CHECK_ERROR(printRLPNumber(&eth_tx_obj.tx.gasPrice, outVal, outValLen, pageIdx, pageCount));
+            snprintf(outKey, outKeyLen, "Max Fees");
+            CHECK_ERROR(printEVMMaxFees(&eth_tx_obj, outVal, outValLen, pageIdx, pageCount));
             break;
 
         case 7:
@@ -457,7 +457,7 @@ parser_error_t _getNumItemsEth(uint8_t *numItems) {
     // Verify that tx is ERC20
     if (validateERC20(&eth_tx_obj)) {
         if (eth_tx_obj.tx_type == legacy || eth_tx_obj.tx_type == eip2930) {
-            *numItems = 9;
+            *numItems = 8;
         } else {
             *numItems = 10;
         }
@@ -466,7 +466,7 @@ parser_error_t _getNumItemsEth(uint8_t *numItems) {
 
     // Common items
     if (eth_tx_obj.tx_type == legacy || eth_tx_obj.tx_type == eip2930) {
-        *numItems = 5;
+        *numItems = 4;
     } else {
         *numItems = 6;
     }

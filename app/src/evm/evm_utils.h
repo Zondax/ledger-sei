@@ -20,12 +20,14 @@
 #include <zxmacros.h>
 
 #include "parser_common.h"
+#include "parser_impl_evm.h"
 #include "rlp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define DECIMAL_BASE 10
 typedef enum RlpError {
     rlp_ok = 0,
     rlp_no_data,
@@ -61,6 +63,9 @@ parser_error_t printEVMAddress(const rlp_t *address, char *outVal, uint16_t outV
 
 parser_error_t printBigIntFixedPoint(const uint8_t *number, uint16_t number_len, char *outVal, uint16_t outValLen,
                                      uint8_t pageIdx, uint8_t *pageCount, uint16_t decimals);
+
+parser_error_t printEVMMaxFees(const eth_tx_t *ethObj, char *outVal, uint16_t outValLen, uint8_t pageIdx,
+                               uint8_t *pageCount);
 #ifdef __cplusplus
 }
 #endif
