@@ -141,16 +141,18 @@ file(GLOB_RECURSE LIB_SRC
     # ###
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/parser.c
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/parser_impl.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm/rlp.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm/uint256.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm/evm_erc20.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm/parser_impl_evm.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm/evm_utils.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm/parser_evm.c
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/crypto_helper.c
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/json/json_parser.c
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/parser_print.c
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/parser_validate.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/app/src/evm/parser_impl_evm_specific.c
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/evm/rlp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/evm/uint256.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/evm/evm_utils.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/evm/parser_evm.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/evm/evm_erc20.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/evm/parser_impl_evm.c
 )
 
 add_library(app_lib STATIC ${LIB_SRC} ${JSMN_SRC})
@@ -164,6 +166,7 @@ target_include_directories(app_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/app/src/json
     ${CMAKE_CURRENT_SOURCE_DIR}/deps/picohash/
     ${CMAKE_CURRENT_SOURCE_DIR}/deps/jsmn/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/evm
 )
 
 # #############################################################

@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "parser_common.h"
+#include "parser_error.h"
 
 #ifdef __cplusplus
 extern "C" {

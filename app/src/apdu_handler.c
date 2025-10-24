@@ -29,6 +29,8 @@
 #include "coin_evm.h"
 #include "crypto.h"
 #include "crypto_helper.h"
+#include "evm_addr.h"
+#include "evm_utils.h"
 #include "tx.h"
 #include "view.h"
 #include "view_internal.h"

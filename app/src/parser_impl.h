@@ -60,13 +60,6 @@ extern bool extraDepthLevel;
     }
 
 typedef struct {
-    const uint8_t *buffer;
-    uint16_t bufferLen;
-    uint16_t offset;
-    parser_tx_t *tx_obj;
-} parser_context_t;
-
-typedef struct {
     const char *str1;
     const char *str2;
 } key_subst_t;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *   (c) 2024 Zondax AG
+ *  (c) 2018 - 2025 Zondax AG
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,22 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
-
 #pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #include <stdint.h>
 
-#include "zxerror.h"
+#include "parser_common.h"
+#include "parser_impl_evm.h"
 
-/// Return the number of items in the address view
-zxerr_t eth_addr_getNumItems(uint8_t *num_items);
+parser_error_t getNumItemsEthAppSpecific(eth_tx_t *txObj, uint8_t *numItems);
 
-/// Gets an specific item from the address view (including paging)
-zxerr_t eth_addr_getItem(int8_t displayIdx, char *outKey, uint16_t outKeyLen, char *outValue, uint16_t outValueLen,
-                         uint8_t pageIdx, uint8_t *pageCount);
+parser_error_t printERC20TransferAppSpecific(const parser_context_t *ctx, eth_tx_t *txObj, uint8_t displayIdx,
+                                             char *outKey, uint16_t outKeyLen, char *outVal, uint16_t outValLen,
+                                             uint8_t pageIdx, uint8_t *pageCount);
+
+parser_error_t printGenericAppSpecific(const parser_context_t *ctx, eth_tx_t *txObj, uint8_t displayIdx,
+                                       char *outKey, uint16_t outKeyLen, char *outVal, uint16_t outValLen, uint8_t pageIdx,
+                                       uint8_t *pageCount);
 
 #ifdef __cplusplus
 }

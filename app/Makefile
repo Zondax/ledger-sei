@@ -81,6 +81,9 @@ $(info COIN  = [$(COIN)])
 VARIANT_PARAM=COIN
 VARIANT_VALUES=$(COIN)
 
+# Enable EVM support
+ENABLE_EVM ?= 1
+
 ########################################
 # Application communication interfaces #
 ########################################
